@@ -1,7 +1,5 @@
 FROM nginx:1.25-alpine
 
-RUN rm /etc/nginx/conf.d/default.conf
+COPY . /app/
 
 COPY ./docker/nginx/nginx.conf /etc/nginx/conf.d/default.conf
-
-COPY ./public /var/www/html

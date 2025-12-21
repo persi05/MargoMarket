@@ -5,16 +5,14 @@ ENV RUN_DEPS \
     libzip \
     libpng \
     libjpeg-turbo \
-    postgresql-libs \
-    icu-libs
+    postgresql-libs
 
 ENV BUILD_DEPS \
     zlib-dev \
     libzip-dev \
     libpng-dev \
     libjpeg-turbo-dev \
-    postgresql-dev \
-    icu-dev
+    postgresql-dev
 
 ENV PHP_EXTENSIONS \
     opcache \
@@ -22,12 +20,11 @@ ENV PHP_EXTENSIONS \
     gd \
     bcmath \
     pgsql \
-    pdo_pgsql \
-    intl
+    pdo_pgsql
 
 RUN apk add --no-cache --virtual .build-deps $BUILD_DEPS \
     && docker-php-ext-configure gd --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" $PHP_EXTENSIONS \
+    && docker-php-ext-install -j "$(nproc)" $PHP_EXTENSIONS \
     && apk del .build-deps
 
 RUN apk add --no-cache --virtual .run-deps $RUN_DEPS
@@ -37,10 +34,6 @@ RUN echo 'memory_limit = 256M' >> /usr/local/etc/php/conf.d/memory.ini \
     && echo 'post_max_size = 30M' >> /usr/local/etc/php/conf.d/uploads.ini \
     && echo 'session.save_path = "/tmp"' >> /usr/local/etc/php/conf.d/sessions.ini
 
-WORKDIR /var/www/html
+COPY . /app
 
-COPY . /var/www/html
-
-RUN chown -R www-data:www-data /var/www/html
-
-VOLUME ["/var/www/html"]
+VOLUME ["/app"]
