@@ -34,7 +34,7 @@ services:
   
   pgadmin-wdpai:
     image: dpage/pgadmin4:latest
-    container_name: pg-admin2
+    container_name: pg-admin3
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
