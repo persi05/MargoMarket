@@ -108,4 +108,39 @@ class UserRepository extends Repository
         return $result && $result['count'] > 0;
     }
 
+    public function getAllUsers(): array
+    {
+        $query = "
+            SELECT 
+                u.id,
+                u.email,
+                u.role_id,
+                r.name as role_name,
+                u.created_at,
+                COUNT(l.id) as listings_count
+            FROM users u
+            INNER JOIN roles r ON u.role_id = r.id
+            LEFT JOIN listings l ON u.id = l.user_id
+            GROUP BY u.id, u.email, u.role_id, r.name, u.created_at
+            ORDER BY u.created_at DESC
+        ";
+
+        $results = $this->fetchAll($query);
+        $users = [];
+
+        foreach ($results as $row) {
+            $user = new User(
+                $row['email'],
+                '',
+                (int) $row['role_id'],
+                $row['role_name'],
+                (int) $row['id'],
+                $row['created_at']
+            );
+            $users[] = $user;
+        }
+
+        return $users;
+    }
+
 }
