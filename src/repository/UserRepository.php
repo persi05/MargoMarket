@@ -38,4 +38,36 @@ class UserRepository extends Repository
         );
     }
 
+    public function getUserById(int $id): ?User
+    {
+        $query = "
+            SELECT 
+                u.id,
+                u.email,
+                u.password,
+                u.role_id,
+                r.name as role_name,
+                u.created_at
+            FROM users u
+            INNER JOIN roles r ON u.role_id = r.id
+            WHERE u.id = :id
+            LIMIT 1
+        ";
+
+        $result = $this->fetchOne($query, ['id' => $id]);
+
+        if (!$result) {
+            return null;
+        }
+
+        return new User(
+            $result['email'],
+            $result['password'],
+            (int) $result['role_id'],
+            $result['role_name'],
+            (int) $result['id'],
+            $result['created_at']
+        );
+    }
+
 }
