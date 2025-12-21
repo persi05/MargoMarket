@@ -70,4 +70,42 @@ class UserRepository extends Repository
         );
     }
 
+    public function createUser(string $email, string $password): ?int
+    {
+        if ($this->getUserByEmail($email) !== null) {
+            return null;
+        }
+
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+        $roleQuery = "SELECT id FROM roles WHERE name = 'user' LIMIT 1";
+        $roleResult = $this->fetchOne($roleQuery);
+        $roleId = $roleResult ? (int) $roleResult['id'] : 1;
+
+        $query = "
+            INSERT INTO users (email, password, role_id)
+            VALUES (:email, :password, :role_id)
+        ";
+
+        $success = $this->execute($query, [
+            'email' => $email,
+            'password' => $hashedPassword,
+            'role_id' => $roleId
+        ]);
+
+        return $success ? $this->getLastInsertId() : null;
+    }
+
+    public function verifyPassword(User $user, string $password): bool
+    {
+        return password_verify($password, $user->getPassword());
+    }
+
+        public function emailExists(string $email): bool
+    {
+        $query = "SELECT COUNT(*) as count FROM users WHERE email = :email";
+        $result = $this->fetchOne($query, ['email' => $email]);
+        return $result && $result['count'] > 0;
+    }
+
 }
