@@ -244,4 +244,42 @@ class UserRepository extends Repository
             'token' => $token
         ]);
     }
+
+    public function countUsers(): int
+    {
+        $query = "SELECT COUNT(*) as count FROM users";
+        $result = $this->fetchOne($query);
+        return $result ? (int) $result['count'] : 0;
+    }
+
+    public function getUserStats(int $userId): array
+    {
+        $query = "
+            SELECT 
+                COUNT(l.id) as total_listings,
+                COUNT(CASE WHEN ls.name = 'active' THEN 1 END) as active_listings,
+                COUNT(CASE WHEN ls.name = 'sold' THEN 1 END) as sold_listings
+            FROM users u
+            LEFT JOIN listings l ON u.id = l.user_id
+            LEFT JOIN listing_statuses ls ON l.status_id = ls.id
+            WHERE u.id = :user_id
+            GROUP BY u.id
+        ";
+
+        $result = $this->fetchOne($query, ['user_id' => $userId]);
+        
+        if (!$result) {
+            return [
+                'total_listings' => 0,
+                'active_listings' => 0,
+                'sold_listings' => 0
+            ];
+        }
+
+        return [
+            'total_listings' => (int) $result['total_listings'],
+            'active_listings' => (int) $result['active_listings'],
+            'sold_listings' => (int) $result['sold_listings']
+        ];
+    }
 }
