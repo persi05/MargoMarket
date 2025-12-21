@@ -143,4 +143,105 @@ class UserRepository extends Repository
         return $users;
     }
 
+    public function createSession(int $userId, string $token, int $expiresInSeconds = 3600): bool
+    {
+        try {
+            $this->beginTransaction();
+
+            $deleteQuery = "DELETE FROM user_sessions WHERE user_id = :user_id";
+            $this->execute($deleteQuery, ['user_id' => $userId]);
+
+            $expiresAt = date('Y-m-d H:i:s', time() + $expiresInSeconds);
+
+            $insertQuery = "
+                INSERT INTO user_sessions (user_id, session_token, expires_at)
+                VALUES (:user_id, :token, :expires_at)
+            ";
+
+            $this->execute($insertQuery, [
+                'user_id' => $userId,
+                'token' => $token,
+                'expires_at' => $expiresAt
+            ]);
+
+            $this->commit();
+            return true;
+
+        } catch (Exception $e) {
+            if ($this->inTransaction()) {
+                $this->rollback();
+            }
+            return false;
+        }
+    }
+
+    public function getUserBySessionToken(string $token): ?User
+    {
+        $query = "
+            SELECT 
+                u.id,
+                u.email,
+                u.password,
+                u.role_id,
+                r.name as role_name,
+                u.created_at
+            FROM users u
+            INNER JOIN roles r ON u.role_id = r.id
+            INNER JOIN user_sessions s ON u.id = s.user_id
+            WHERE s.session_token = :token
+              AND s.expires_at > NOW()
+            LIMIT 1
+        ";
+
+        $result = $this->fetchOne($query, ['token' => $token]);
+
+        if (!$result) {
+            return null;
+        }
+
+        return new User(
+            $result['email'],
+            $result['password'],
+            (int) $result['role_id'],
+            $result['role_name'],
+            (int) $result['id'],
+            $result['created_at']
+        );
+    }
+
+    public function deleteSession(int $userId): bool
+    {
+        $query = "DELETE FROM user_sessions WHERE user_id = :user_id";
+        return $this->execute($query, ['user_id' => $userId]);
+    }
+
+    public function deleteSessionByToken(string $token): bool
+    {
+        $query = "DELETE FROM user_sessions WHERE session_token = :token";
+        return $this->execute($query, ['token' => $token]);
+    }
+
+    public function cleanupExpiredSessions(): int
+    {
+        $query = "DELETE FROM user_sessions WHERE expires_at < NOW()";
+        $stmt = $this->connection->prepare($query);
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    public function extendSession(string $token, int $expiresInSeconds = 3600): bool
+    {
+        $expiresAt = date('Y-m-d H:i:s', time() + $expiresInSeconds);
+        
+        $query = "
+            UPDATE user_sessions 
+            SET expires_at = :expires_at 
+            WHERE session_token = :token
+        ";
+
+        return $this->execute($query, [
+            'expires_at' => $expiresAt,
+            'token' => $token
+        ]);
+    }
 }
