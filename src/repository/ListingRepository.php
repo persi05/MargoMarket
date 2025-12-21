@@ -6,16 +6,63 @@ require_once __DIR__ . '/../models/Listing.php';
 class ListingRepository extends Repository
 {
 
-    public function getActiveListings(int $limit = 50, int $offset = 0): array
+    public function getActiveListings(int $limit = 50, ?int $lastId = null): array
     {
-        $query = "SELECT * FROM active_listings_view LIMIT :limit OFFSET :offset";
+        $query = "SELECT * FROM active_listings_view ";
         
+        if ($lastId !== null) {
+            $query .= "WHERE id > :last_id ";
+        }
+
+        $query .= "ORDER BY id ASC LIMIT :limit";
+
         $stmt = $this->getConnection()->prepare($query);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        if ($lastId !== null) {
+            $stmt->bindValue(':last_id', $lastId, PDO::PARAM_INT);
+        }
+
         $stmt->execute();
         
         return $this->mapToListings($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function searchListings(
+        ?string $searchTerm = null,
+        ?int $serverId = null,
+        int $minLevel = 0,
+        int $maxLevel = 300,
+        ?int $itemTypeId = null,
+        ?int $rarityId = null,
+        int $limit = 50,
+        int $offset = 0
+    ): array {
+        $query = "
+            SELECT * FROM search_listings(
+                :search_term,
+                :server_id,
+                :min_level,
+                :max_level,
+                :item_type_id,
+                :rarity_id,
+                :limit,
+                :offset
+            )
+        ";
+
+        $results = $this->fetchAll($query, [
+            'search_term' => $searchTerm,
+            'server_id' => $serverId,
+            'min_level' => $minLevel,
+            'max_level' => $maxLevel,
+            'item_type_id' => $itemTypeId,
+            'rarity_id' => $rarityId,
+            'limit' => $limit,
+            'offset' => $offset
+        ]);
+
+        return $this->mapToListings($results);
     }
 
     public function getListingById(int $id): ?Listing
