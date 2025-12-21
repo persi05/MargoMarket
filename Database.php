@@ -3,6 +3,9 @@
 require_once "config.php";
 
 class Database {
+    private static ?Database $instance = null;
+    private ?PDO $connection = null;
+
     private $username;
     private $password;
     private $host;
@@ -16,8 +19,19 @@ class Database {
         $this->database = DATABASE;
     }
 
+    public static function getInstance(): Database
+    {
+        if (self::$instance === null) {
+            self::$instance = new Database();
+        }
+        return self::$instance;
+    }
+
     public function connect()
     {
+        if ($this->connection !== null) {
+            return $this->connection;
+        }
         try {
             $conn = new PDO(
                 "pgsql:host=$this->host;port=5432;dbname=$this->database",
@@ -30,11 +44,10 @@ class Database {
                 ]
             );
 
-            return $conn;
+            return $this->connection;
         }
         catch(PDOException $e) {
-            error_log("Database connection failed: " . $e->getMessage());
-            die("Connection failed: " . $e->getMessage());
+            die("Connection failed: ".$e->getMessage());
         }
     }
 }
