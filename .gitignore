@@ -1,0 +1,12 @@
+.vscode
+.vs
+.idea
+
+config.php
+
+*.log
+.DS_Store
+Thumbs.db
+
+postgres-data/
+pgadmin-data/
