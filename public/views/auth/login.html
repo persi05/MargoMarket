@@ -5,98 +5,96 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Logowanie - Margomarket</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#137fec",
-                        "background-light": "#f6f7f8",
-                        "background-dark": "#101922",
+                        primary: "#d4af37",
+                        primaryHover: "#b5952f",
+                        bgDark: "#0f172a",
+                        cardDark: "#1e293b",
+                        inputDark: "#334155",
                     },
                     fontFamily: {
                         "display": ["Space Grotesk", "sans-serif"]
-                    },
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    }
                 },
             },
         }
     </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
-        }
-    </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display">
-    <div class="relative flex min-h-screen w-full flex-col items-center justify-center bg-[#111418] dark group/design-root overflow-x-hidden" style='font-family: "Space Grotesk", "Noto Sans", sans-serif;'>
-        <div class="absolute inset-0 z-0">
-            <img alt="Fantasy world map background" class="h-full w-full object-cover opacity-20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE"/>
-        </div>
-        
-        <div class="relative z-10 flex w-full max-w-md flex-col rounded-xl bg-[#1c232c] p-8 shadow-2xl">
-            <div class="layout-content-container flex flex-col flex-1">
-                <div class="flex flex-wrap justify-center gap-3 p-4">
-                    <div class="flex min-w-72 flex-col gap-3 text-center">
-                        <p class="text-white text-4xl font-black leading-tight tracking-[-0.033em]">Witaj w Margomarket</p>
-                        <p class="text-[#9dabb9] text-base font-normal leading-normal">Zaloguj się, aby kontynuować.</p>
-                    </div>
+<body class="bg-bgDark font-display text-slate-200 antialiased selection:bg-primary selection:text-black">
+    
+    <div class="fixed inset-0 z-0">
+        <img 
+            alt="Fantasy world map background" 
+            class="h-full w-full object-cover opacity-20" 
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE"
+        />
+        <div class="absolute inset-0 bg-bgDark/30"></div>
+    </div>
+
+    <div class="relative z-10 flex min-h-screen w-full items-center justify-center p-4">
+        <div class="w-full max-w-md animate-fade-in rounded-2xl bg-cardDark/95 backdrop-blur-sm p-8 shadow-2xl border border-slate-700/50">
+            
+            <div class="mb-8 text-center">
+                <h1 class="text-3xl font-bold tracking-tight text-white mb-2">Witaj w Margomarket</h1>
+                <p class="text-slate-400">Zaloguj się, aby kontynuować.</p>
+            </div>
+
+            <?php if (isset($messages)): ?>
+                <div class="mb-6 rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400 text-center">
+                    <?= htmlspecialchars($messages) ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($success)): ?>
+                <div class="mb-6 rounded-lg bg-green-500/10 border border-green-500/20 p-4 text-sm text-green-400 text-center">
+                    <?= htmlspecialchars($success) ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="/login" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-300" for="email">E-mail</label>
+                    <input 
+                        name="email"
+                        id="email"
+                        type="email"
+                        placeholder="Podaj email"
+                        value="<?= htmlspecialchars($email ?? '') ?>"
+                        required
+                        class="w-full rounded-lg bg-inputDark border-transparent px-4 py-3 text-white placeholder-slate-400 focus:border-primary focus:bg-slate-700 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                    />
                 </div>
 
-                <?php if (isset($messages)): ?>
-                    <div class="mx-4 mb-4 rounded-lg bg-red-900/20 border border-red-500/50 p-3">
-                        <p class="text-red-400 text-sm font-medium"><?= htmlspecialchars($messages) ?></p>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <label class="block text-sm font-medium text-slate-300" for="password">Hasło</label>
                     </div>
-                <?php endif; ?>
-
-                <?php if (isset($success)): ?>
-                    <div class="mx-4 mb-4 rounded-lg bg-green-900/20 border border-green-500/50 p-3">
-                        <p class="text-green-400 text-sm font-medium"><?= htmlspecialchars($success) ?></p>
-                    </div>
-                <?php endif; ?>
-
-                <form method="POST" action="/login" class="flex flex-col gap-4 px-4 py-3">
-                    <label class="flex flex-col min-w-40 flex-1">
-                        <p class="text-white text-base font-medium leading-normal pb-2">E-mail</p>
-                        <input 
-                            name="email"
-                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#283039] focus:border-none h-14 placeholder:text-[#9dabb9] p-4 text-base font-normal leading-normal" 
-                            placeholder="Wpisz swój adres e-mail" 
-                            type="email"
-                            value="<?= htmlspecialchars($email ?? '') ?>"
-                            required
-                        />
-                    </label>
-
-                    <label class="flex flex-col min-w-40 flex-1">
-                        <p class="text-white text-base font-medium leading-normal pb-2">Hasło</p>
-                        <div class="flex w-full flex-1 items-stretch rounded-lg">
-                            <input 
-                                name="password"
-                                class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#283039] focus:border-none h-14 placeholder:text-[#9dabb9] p-4 text-base font-normal leading-normal" 
-                                placeholder="Wpisz swoje hasło" 
-                                type="password"
-                                required
-                            />
-                        </div>
-                    </label>
-
-                    <div class="flex px-4 py-3 mt-4">
-                        <button type="submit" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-[#d4af37] text-black text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#c8a430] transition-colors">
-                            <span class="truncate">Zaloguj się</span>
-                        </button>
-                    </div>
-                </form>
-
-                <div class="text-center mt-4 px-4">
-                    <p class="text-sm text-[#9dabb9]">
-                        Nie masz jeszcze konta? 
-                        <a class="font-medium text-white hover:underline" href="/register">Zarejestruj się</a>
-                    </p>
+                    <input 
+                        name="password"
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        required
+                        class="w-full rounded-lg bg-inputDark border-transparent px-4 py-3 text-white placeholder-slate-400 focus:border-primary focus:bg-slate-700 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                    />
                 </div>
+
+                <button type="submit" class="w-full rounded-lg bg-primary py-3.5 text-center text-sm font-bold uppercase tracking-wider text-black transition-all hover:bg-primaryHover hover:shadow-lg hover:shadow-primary/20 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bgDark">
+                    Zaloguj się
+                </button>
+            </form>
+
+            <div class="mt-8 text-center text-sm text-slate-400">
+                Nie masz jeszcze konta? 
+                <a href="/register" class="font-medium text-primary hover:text-primaryHover hover:underline transition-colors">
+                    Zarejestruj się
+                </a>
             </div>
         </div>
     </div>
