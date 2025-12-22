@@ -5,13 +5,14 @@ require_once 'src/repository/UserRepository.php';
 
 session_start();
 
+$userRepository = new UserRepository();
+
 # not good but acceptable
 if (random_int(1, 100) === 1) { 
     $userRepository->cleanupExpiredSessions();
 }
 
 if (isset($_SESSION['user_id']) && isset($_SESSION['session_token'])) {
-    $userRepository = new UserRepository();
     $user = $userRepository->getUserBySessionToken($_SESSION['session_token']);
     
     if (!$user) {
