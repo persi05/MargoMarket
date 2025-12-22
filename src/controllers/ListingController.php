@@ -14,12 +14,13 @@ class ListingController extends AppController
 
     public function index(): void
     {
-        $searchTerm = $_GET['search'] ?? null;
-        $serverId = isset($_GET['server']) ? (int)$_GET['server'] : null;
-        $minLevel = isset($_GET['min_level']) ? (int)$_GET['min_level'] : 0;
-        $maxLevel = isset($_GET['max_level']) ? (int)$_GET['max_level'] : 300;
-        $itemTypeId = isset($_GET['item_type']) ? (int)$_GET['item_type'] : null;
-        $rarityId = isset($_GET['rarity']) ? (int)$_GET['rarity'] : null;
+        $searchTerm = !empty($_GET['search']) ? $_GET['search'] : null;
+        $serverId = !empty($_GET['server']) ? (int)$_GET['server'] : null;
+        $minLevel = !empty($_GET['min_level']) ? (int)$_GET['min_level'] : 0;
+        $maxLevel = !empty($_GET['max_level']) ? (int)$_GET['max_level'] : 300;
+        $itemTypeId = !empty($_GET['item_type']) ? (int)$_GET['item_type'] : null;
+        $rarityId = !empty($_GET['rarity']) ? (int)$_GET['rarity'] : null;
+        $currencyId = !empty($_GET['currency']) ? (int)$_GET['currency'] : null;
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $limit = 50;
         $offset = ($page - 1) * $limit;
@@ -31,6 +32,7 @@ class ListingController extends AppController
             $maxLevel,
             $itemTypeId,
             $rarityId,
+            $currencyId,
             $limit,
             $offset
         );
@@ -38,7 +40,18 @@ class ListingController extends AppController
         $servers = $this->listingRepository->getServers();
         $itemTypes = $this->listingRepository->getItemTypes();
         $rarities = $this->listingRepository->getRarities();
-        $totalListings = $this->listingRepository->countActiveListings();
+        $currencies = $this->listingRepository->getCurrencies();
+        
+        $totalListings = $this->listingRepository->countFilteredListings(
+            $searchTerm,
+            $serverId,
+            $minLevel,
+            $maxLevel,
+            $itemTypeId,
+            $rarityId,
+            $currencyId
+        );
+        
         $totalPages = ceil($totalListings / $limit);
 
         $this->render('listings/index', [
@@ -46,6 +59,7 @@ class ListingController extends AppController
             'servers' => $servers,
             'itemTypes' => $itemTypes,
             'rarities' => $rarities,
+            'currencies' => $currencies,
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'filters' => [
@@ -54,7 +68,8 @@ class ListingController extends AppController
                 'min_level' => $minLevel,
                 'max_level' => $maxLevel,
                 'item_type' => $itemTypeId,
-                'rarity' => $rarityId
+                'rarity' => $rarityId,
+                'currency' => $currencyId
             ]
         ]);
     }

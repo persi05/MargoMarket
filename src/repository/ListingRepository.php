@@ -35,6 +35,7 @@ class ListingRepository extends Repository
         int $maxLevel = 300,
         ?int $itemTypeId = null,
         ?int $rarityId = null,
+        ?int $currencyId = null,
         int $limit = 50,
         int $offset = 0
     ): array {
@@ -46,6 +47,7 @@ class ListingRepository extends Repository
                 :max_level,
                 :item_type_id,
                 :rarity_id,
+                :currency_id,
                 :limit,
                 :offset
             )
@@ -58,6 +60,7 @@ class ListingRepository extends Repository
             'max_level' => $maxLevel,
             'item_type_id' => $itemTypeId,
             'rarity_id' => $rarityId,
+            'currency_id' => $currencyId,
             'limit' => $limit,
             'offset' => $offset
         ]);
@@ -290,5 +293,33 @@ class ListingRepository extends Repository
             $listings[] = $this->mapToListing($row);
         }
         return $listings;
+    }
+
+    public function countFilteredListings(?string $searchTerm = null, ?int $serverId = null, int $minLevel = 0, 
+    int $maxLevel = 300, ?int $itemTypeId = null, ?int $rarityId = null, ?int $currencyId = null): int {
+        $query = "
+            SELECT COUNT(*) as count
+            FROM listings l
+            INNER JOIN listing_statuses ls ON l.status_id = ls.id
+            WHERE ls.name = 'active'
+                AND (:server_id::INTEGER IS NULL OR l.server_id = :server_id)
+                AND (:item_type_id::INTEGER IS NULL OR l.item_type_id = :item_type_id)
+                AND (:rarity_id::INTEGER IS NULL OR l.rarity_id = :rarity_id)
+                AND (:currency_id::INTEGER IS NULL OR l.currency_id = :currency_id)
+                AND l.level BETWEEN :min_level AND :max_level
+                AND (:search_term::VARCHAR IS NULL OR l.item_name ILIKE '%' || :search_term || '%')
+        ";
+
+        $result = $this->fetchOne($query, [
+            'search_term' => $searchTerm,
+            'server_id' => $serverId,
+            'min_level' => $minLevel,
+            'max_level' => $maxLevel,
+            'item_type_id' => $itemTypeId,
+            'rarity_id' => $rarityId,
+            'currency_id' => $currencyId
+        ]);
+
+        return $result ? (int) $result['count'] : 0;
     }
 }
