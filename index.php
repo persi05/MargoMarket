@@ -25,4 +25,8 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['session_token'])) {
 $path = trim($_SERVER['REQUEST_URI'], '/');
 $path = parse_url($path, PHP_URL_PATH);
 
+if ($path === null || $path === false) {
+    $path = '';
+}
+
 Routing::run($path);
