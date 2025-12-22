@@ -56,7 +56,6 @@ class SecurityController extends AppController
         
         $this->userRepository->createSession($user->getId(), $sessionToken, 3600);
         
-        session_start();
         $_SESSION['user_id'] = $user->getId();
         $_SESSION['user_email'] = $user->getEmail();
         $_SESSION['user_role'] = $user->getRoleName();
@@ -137,9 +136,7 @@ class SecurityController extends AppController
     }
 
     public function logout(): void
-    {
-        session_start();
-        
+    {        
         if (isset($_SESSION['session_token'])) {
             $this->userRepository->deleteSessionByToken($_SESSION['session_token']);
         }
