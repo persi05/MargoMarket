@@ -29,6 +29,8 @@ services:
       dockerfile: docker/php/Dockerfile
     volumes:
       - .:/app
+    env_file:
+      - .env
     networks:
       - pg-network
   
