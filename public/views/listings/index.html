@@ -72,10 +72,17 @@
                 
                 <div class="flex flex-1 justify-end gap-8 items-center">
                     <nav class="flex items-center gap-6">
+                            <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+                                <a class="text-slate-300 hover:text-white transition-colors font-medium flex items-center gap-1" href="/admin">
+                                    <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                                    Panel Admina
+                                </a>
+                            <?php endif; ?>
                         <a class="text-primary font-bold border-b-2 border-primary pb-1" href="/">Ogłoszenia</a>
                         <?php if (isset($_SESSION['user_id'])): ?>
                             <a class="text-slate-300 hover:text-white transition-colors font-medium" href="/my-listings">Moje ogłoszenia</a>
                             <a class="text-slate-300 hover:text-white transition-colors font-medium" href="/create">Stwórz ogłoszenie</a>
+
                         <?php endif; ?>
                     </nav>
 
