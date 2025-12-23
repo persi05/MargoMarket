@@ -19,26 +19,23 @@ class AdminController extends AppController
     {
         $this->requireAdmin();
 
-        $searchTerm = $_GET['search'] ?? null;
-        $serverId = isset($_GET['server']) ? (int)$_GET['server'] : null;
-        $statusFilter = $_GET['status'] ?? null;
+        $searchTerm = !empty($_GET['search']) ? $_GET['search'] : null;
+        $serverId = !empty($_GET['server']) ? (int)$_GET['server'] : null;
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $limit = 50;
         $offset = ($page - 1) * $limit;
 
-        $listings = $this->listingRepository->searchListings(
+        $listings = $this->listingRepository->getAllListingsAdmin(
             $searchTerm,
             $serverId,
-            0,
-            300,
-            null,
-            null,
             $limit,
             $offset
         );
 
         $servers = $this->listingRepository->getServers();
-        $totalListings = $this->listingRepository->countActiveListings();
+        
+        $totalListings = $this->listingRepository->countAllListings($searchTerm, $serverId);
+        
         $totalPages = ceil($totalListings / $limit);
         $totalUsers = $this->userRepository->countUsers();
 
@@ -51,8 +48,7 @@ class AdminController extends AppController
             'totalUsers' => $totalUsers,
             'filters' => [
                 'search' => $searchTerm,
-                'server' => $serverId,
-                'status' => $statusFilter
+                'server' => $serverId
             ]
         ]);
     }
@@ -82,14 +78,23 @@ class AdminController extends AppController
         }
     }
 
-    public function users(): void
-    {
-        $this->requireAdmin();
+public function users(): void
+{
+    $this->requireAdmin();
 
-        $users = $this->userRepository->getAllUsers();
-
-        $this->render('admin/users', [
-            'users' => $users
-        ]);
+    $usersData = $this->userRepository->getAllUsers();
+    
+    $users = [];
+    foreach ($usersData as $user) {
+        $stats = $this->userRepository->getUserStats($user->getId());
+        $users[] = [
+            'user' => $user,
+            'stats' => $stats
+        ];
     }
+
+    $this->render('admin/users', [
+        'users' => $users
+    ]);
+}
 }
