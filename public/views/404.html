@@ -1,41 +1,148 @@
 <!DOCTYPE html>
-<html lang="pl" class="dark">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 - Strona nie znaleziona</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <link rel="stylesheet" type="text/css" href="/public/styles/main.css">
-    <script src="/public/scripts/main.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .bg-overlay img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.2;
+        }
+
+        .bg-overlay-shade {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.9);
+        }
+
+        .error-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-icon {
+            color: #d4af37;
+            font-size: 120px;
+            margin-bottom: 30px;
+        }
+
+        .error-code {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #d4af37 0%, #fff 100%);
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        .error-message {
+            color: #64748b;
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background-color: #d4af37;
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background-color: #b5952f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+    </style>
 </head>
-<body class="bg-bgDark font-display text-slate-200 antialiased selection:bg-primary selection:text-black">
-    
-    <div class="fixed inset-0 z-0">
-        <img 
-            alt="Fantasy world map background" 
-            class="h-full w-full object-cover opacity-20" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE"
-        />
-        <div class="absolute inset-0 bg-bgDark/90"></div>
+<body>
+    <div class="bg-overlay">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE" alt="Background">
+        <div class="bg-overlay-shade"></div>
     </div>
 
-    <div class="relative z-10 flex min-h-screen w-full items-center justify-center p-4">
-        <div class="text-center animate-fade-in">
-            <div class="mb-8">
-                <span class="material-symbols-outlined text-primary" style="font-size: 120px;">search_off</span>
-            </div>
-            <h1 class="text-6xl font-bold text-white mb-4 gradient-text">404</h1>
-            <p class="text-2xl text-slate-400 mb-8">Strona nie została znaleziona</p>
-            <p class="text-slate-500 mb-8 max-w-md mx-auto">
-                Przepraszamy, ale strona której szukasz nie istnieje lub została przeniesiona.
-            </p>
-            <a href="/" class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-black uppercase tracking-wider transition-all hover:bg-primaryHover hover:shadow-lg hover:shadow-primary/20">
-                <span class="material-symbols-outlined text-[20px]">home</span>
-                Wróć do strony głównej
-            </a>
+    <div class="error-container">
+        <div>
+            <span class="material-symbols-outlined error-icon">search_off</span>
         </div>
+        <h1 class="error-code">404</h1>
+        <p class="error-title">Strona nie została znaleziona</p>
+        <p class="error-message">
+            Przepraszamy, ale strona której szukasz nie istnieje lub została przeniesiona.
+        </p>
+        <a href="/" class="btn btn-primary">
+            <span class="material-symbols-outlined" style="font-size: 20px;">home</span>
+            Wróć do strony głównej
+        </a>
     </div>
 </body>
 </html>
