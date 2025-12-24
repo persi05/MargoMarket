@@ -1,89 +1,279 @@
 <!DOCTYPE html>
-<html class="dark" lang="pl">
+<html lang="pl">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Rejestracja - Margomarket</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="/public/styles/main.css">
-    <script src="/public/scripts/main.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejestracja - Margonem Market</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .bg-overlay img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.2;
+        }
+
+        .bg-overlay-shade {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.3);
+        }
+
+        .register-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .register-card {
+            background-color: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .register-title {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .register-subtitle {
+            color: #94a3b8;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background-color: #334155;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .form-input::placeholder {
+            color: rgba(148, 163, 184, 0.6);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #d4af37;
+            background-color: #3e4c63;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background-color: #d4af37;
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background-color: #b5952f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        .register-footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .register-footer a {
+            color: #d4af37;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .register-footer a:hover {
+            color: #b5952f;
+            text-decoration: underline;
+        }
+    </style>
 </head>
-<body class="bg-bgDark font-display text-slate-200 antialiased selection:bg-primary selection:text-black">
-    
-    <div class="fixed inset-0 z-0">
-        <img 
-            alt="Fantasy world map background" 
-            class="h-full w-full object-cover opacity-20" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE"
-        />
-        <div class="absolute inset-0 bg-bgDark/30"></div>
+<body>
+    <div class="bg-overlay">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE" alt="Background">
+        <div class="bg-overlay-shade"></div>
     </div>
 
-    <div class="relative z-10 flex min-h-screen w-full items-center justify-center p-4">
-        <div class="w-full max-w-md animate-fade-in rounded-2xl bg-cardDark p-8 shadow-2xl border border-slate-700/50 backdrop-blur-custom">
-            
-            <div class="mb-8 text-center">
-                <h1 class="text-3xl font-bold tracking-tight text-white mb-2">Stwórz nowe konto</h1>
-                <p class="text-slate-400">Dołącz do społeczności i zacznij handlować.</p>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <h1 class="register-title">Stwórz nowe konto</h1>
+                <p class="register-subtitle">Dołącz do społeczności i zacznij handlować.</p>
             </div>
 
             <?php if (isset($messages)): ?>
-                <div class="mb-6 rounded-lg badge-danger p-4 text-sm text-center w-full justify-center">
-                    <?= htmlspecialchars($messages) ?>
+                <div class="alert alert-error">
+                    <span class="material-symbols-outlined">error</span>
+                    <span><?= htmlspecialchars($messages) ?></span>
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="/register" class="space-y-5">
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-slate-300" for="email">Adres e-mail</label>
+            <form method="POST" action="/register">
+                <div class="form-group">
+                    <label class="form-label" for="email">Adres e-mail</label>
                     <input 
-                        name="email"
-                        id="email"
-                        type="email"
+                        type="email" 
+                        name="email" 
+                        id="email" 
+                        class="form-input" 
                         placeholder="Podaj email"
                         value="<?= htmlspecialchars($email ?? '') ?>"
                         required
-                        class="w-full rounded-lg bg-inputDark border-transparent px-4 py-3 text-white placeholder-slate-400 focus:border-primary focus:bg-slate-700 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                    />
+                    >
                 </div>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-slate-300" for="password">Hasło</label>
+                <div class="form-group">
+                    <label class="form-label" for="password">Hasło</label>
                     <input 
-                        name="password"
-                        id="password"
-                        type="password"
+                        type="password" 
+                        name="password" 
+                        id="password" 
+                        class="form-input" 
                         placeholder="••••••••"
                         required
-                        class="w-full rounded-lg bg-inputDark border-transparent px-4 py-3 text-white placeholder-slate-400 focus:border-primary focus:bg-slate-700 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                    />
+                    >
                 </div>
 
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-slate-300" for="confirm_password">Powtórz hasło</label>
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">Powtórz hasło</label>
                     <input 
-                        name="confirm_password"
-                        id="confirm_password"
-                        type="password"
+                        type="password" 
+                        name="confirm_password" 
+                        id="confirm_password" 
+                        class="form-input" 
                         placeholder="••••••••"
                         required
-                        class="w-full rounded-lg bg-inputDark border-transparent px-4 py-3 text-white placeholder-slate-400 focus:border-primary focus:bg-slate-700 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                    />
+                    >
                 </div>
 
-                <button type="submit" class="w-full rounded-lg bg-primary py-3.5 text-center text-sm font-bold uppercase tracking-wider text-black transition-all hover:bg-primaryHover hover:shadow-lg hover:shadow-primary/20 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bgDark mt-4">
+                <button type="submit" class="btn btn-primary">
                     Zarejestruj się
                 </button>
             </form>
 
-            <div class="mt-8 text-center text-sm text-slate-400">
+            <div class="register-footer">
                 Masz już konto? 
-                <a href="/login" class="font-medium text-primary hover:text-primaryHover hover:underline transition-colors">
-                    Zaloguj się
-                </a>
+                <a href="/login">Zaloguj się</a>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts.length > 0) {
+                setTimeout(function() {
+                    alerts.forEach(function(alert) {
+                        alert.style.transition = 'opacity 0.5s ease';
+                        alert.style.opacity = '0';
+                        setTimeout(function() {
+                            alert.remove();
+                        }, 500);
+                    });
+                }, 4000);
+            }
+        });
+    </script>
 </body>
 </html>
