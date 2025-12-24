@@ -1,129 +1,421 @@
 <!DOCTYPE html>
-<html class="dark" lang="pl">
+<html lang="pl">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Użytkownicy - Panel Admina</title>
     
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     
-    <link rel="stylesheet" href="/public/styles/main.css">
-    <script src="/public/scripts/main.js" defer></script>
+    <style>
+        :root {
+            --color-primary: #d4af37;
+            --color-primary-hover: #b5952f;
+            --color-bg-dark: #0f172a;
+            --color-card-dark: #1e293b;
+            --color-input-dark: #334155;
+            --color-text-main: #e2e8f0;
+            --color-text-muted: #94a3b8;
+            --color-danger: #ef4444;
+            --color-success: #22c55e;
+            --header-height: 70px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-input-dark) var(--color-bg-dark);
+            /* ZAPOBIEGANIE SKAKANIU STRONY */
+            overflow-y: scroll;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--color-bg-dark);
+            color: var(--color-text-main);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Tło */
+        .bg-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-overlay img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.2;
+        }
+
+        .bg-overlay-shade {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.9);
+        }
+
+        .layout-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER (Spójny z resztą strony) */
+        .main-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #1e293b;
+            padding: 16px 40px; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+            transition: opacity 0.3s;
+        }
+
+        .logo-section:hover { opacity: 0.9; }
+        .logo-icon { width: 32px; height: 32px; color: var(--color-primary); }
+        .logo-text { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.025em; color: white; }
+        .logo-subtext { font-size: 0.75rem; color: var(--color-primary); letter-spacing: 0.1em; text-transform: uppercase; margin-left: 8px; font-weight: 500;}
+
+        .nav-desktop { display: flex; align-items: center; gap: 32px; }
+        .nav-links-group { display: flex; align-items: center; gap: 24px; }
+        
+        .nav-link { 
+            color: #cbd5e1; 
+            text-decoration: none; 
+            font-weight: 500; 
+            transition: color 0.3s; 
+            font-size: 1rem; 
+            position: relative; 
+        }
+        
+        .nav-link:hover { color: white; }
+        .nav-link.active { color: var(--color-primary); font-weight: 700; }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--color-primary);
+        }
+
+        .mobile-menu-btn { display: none; background: none; border: none; color: white; cursor: pointer; padding: 8px; }
+        
+        .mobile-nav {
+            display: none;
+            background-color: var(--color-bg-dark);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            flex-direction: column;
+            gap: 15px;
+            position: sticky;
+            top: 73px;
+            z-index: 49;
+        }
+        .mobile-nav.open { display: flex; }
+
+        /* Style Przycisków */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary { background-color: var(--color-primary); color: #000; }
+        .btn-primary:hover { background-color: var(--color-primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
+
+        .btn-danger { background-color: rgba(220, 38, 38, 0.9); color: white; }
+        .btn-danger:hover { background-color: #b91c1c; }
+
+        /* --- STYLE DLA USERS --- */
+        .container {
+            flex: 1;
+            padding: 30px 40px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-title {
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        /* Tabela */
+        .table-container {
+            background-color: var(--color-card-dark);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--color-text-main);
+            font-size: 0.95rem;
+            min-width: 800px;
+        }
+
+        .data-table th {
+            background: rgba(15, 23, 42, 0.6);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--color-text-muted);
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            letter-spacing: 0.05em;
+        }
+
+        .data-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr { transition: background-color 0.2s; }
+        .data-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-admin {
+            background-color: rgba(212, 175, 55, 0.15);
+            color: var(--color-primary);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .badge-user {
+            background-color: var(--color-input-dark);
+            color: var(--color-text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .text-muted { color: var(--color-text-muted); font-size: 0.85rem; }
+        .stat-group { display: flex; align-items: center; gap: 8px; }
+
+        .main-footer {
+            text-align: center; padding: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); background-color: rgba(15, 23, 42, 0.8); color: var(--color-text-muted); font-size: 0.9rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-header { padding: 16px 20px; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-desktop { display: none; }
+            .mobile-menu-btn { display: block; }
+            .container { padding: 20px; }
+            .table-container { overflow-x: auto; }
+        }
+    </style>
 </head>
-<body class="bg-bgDark font-display text-slate-200 antialiased selection:bg-primary selection:text-black">
+<body>
 
-    <div class="fixed inset-0 z-0">
-        <img 
-            alt="Fantasy world map background" 
-            class="h-full w-full object-cover opacity-20" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE"
-        />
-        <div class="absolute inset-0 bg-bgDark/90"></div>
+    <div class="bg-overlay">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE" alt="Background">
+        <div class="bg-overlay-shade"></div>
     </div>
 
-    <div class="relative z-10 flex min-h-screen w-full flex-col">
-        <div class="layout-container flex h-full grow flex-col">
+    <div class="layout-container">
+        
+        <header class="main-header">
+            <a href="/" class="logo-section">
+                <div class="logo-icon">
+                    <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="logo-text">Panel Administratora</h2>
+                    <span class="logo-subtext">Margonem Market</span>
+                </div>
+            </a>
             
-            <header class="flex items-center justify-between whitespace-nowrap border-b border-slate-800 px-10 py-4 sticky top-0 z-50 bg-bgDark/80 backdrop-blur-custom">
-                <div class="flex items-center gap-4 text-white">
-                    <div class="size-8 text-primary">
-                        <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                            <path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <div class="flex flex-col">
-                        <h2 class="text-white text-xl font-bold leading-tight tracking-wide">Panel Administratora</h2>
-                        <span class="text-xs text-primary font-medium tracking-widest uppercase">Margonem Market</span>
-                    </div>
-                </div>
-                
-                <div class="flex flex-1 justify-end gap-8 items-center">
-                    <nav class="flex items-center gap-6">
-                        <a class="text-slate-300 hover:text-white transition-colors font-medium" href="/admin">Ogłoszenia</a>
-                        <a class="text-primary font-bold border-b-2 border-primary pb-1" href="/admin-users">Użytkownicy</a>
-                        <a class="text-slate-300 hover:text-white transition-colors font-medium flex items-center gap-1" href="/">
-                            <span class="material-symbols-outlined text-[18px]">logout</span>
-                            Powrót
-                        </a>
-                    </nav>
+            <button id="mobile-menu-toggle" class="mobile-menu-btn">
+                <span class="material-symbols-outlined" style="font-size: 32px;">menu</span>
+            </button>
 
-                    <form method="POST" action="/logout">
-                        <button type="submit" class="flex items-center justify-center rounded-lg bg-red-600/90 px-5 py-2 text-sm font-bold text-white transition-all hover:bg-red-700 hover:shadow-lg hover:shadow-red-900/20">
-                            <span class="truncate">Wyloguj</span>
-                        </button>
-                    </form>
-                </div>
-            </header>
+            <div class="nav-desktop">
+                <nav class="nav-links-group">
+                    <a class="nav-link" href="/admin">Ogłoszenia</a>
+                    <a class="nav-link active" href="/admin-users">Użytkownicy</a>
+                    <a class="nav-link" href="/" style="display: flex; align-items: center; gap: 4px;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+                        Powrót
+                    </a>
+                </nav>
 
-            <main class="flex-1 p-8 animate-fade-in">
-                <div class="max-w-7xl mx-auto">
-                    <h1 class="text-3xl font-bold text-white mb-8 flex items-center gap-3">
-                        <span class="material-symbols-outlined text-primary text-4xl">group</span>
-                        Zarządzanie użytkownikami
-                    </h1>
+                <form method="POST" action="/logout" style="margin: 0;">
+                    <button type="submit" class="btn btn-danger">
+                        Wyloguj
+                    </button>
+                </form>
+            </div>
+        </header>
 
-                    <div class="bg-cardDark rounded-xl border border-slate-700/50 shadow-xl overflow-hidden">
-                        <div class="table-wrapper">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-900/50 border-b border-slate-700">
-                                    <tr>
-                                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-slate-400">ID</th>
-                                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-slate-400">Email</th>
-                                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-slate-400">Rola</th>
-                                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-slate-400">Data rejestracji</th>
-                                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-slate-400 text-center">Liczba ogłoszeń</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-700/50">
-                                    <?php if (empty($users)): ?>
-                                        <tr>
-                                            <td colspan="5" class="p-12 text-center text-slate-500">
-                                                Brak użytkowników
-                                            </td>
-                                        </tr>
-                                    <?php else: ?>
-                                        <?php foreach ($users as $userData): ?>
-                                            <?php 
-                                                $user = $userData['user'];
-                                                $stats = $userData['stats'];
-                                            ?>
-                                            <tr class="hover:bg-slate-700/30 transition-colors">
-                                                <td class="p-4 text-slate-400 font-mono text-sm">#<?= $user->getId() ?></td>
-                                                <td class="p-4 font-medium text-white"><?= htmlspecialchars($user->getEmail()) ?></td>
-                                                <td class="p-4">
-                                                    <?php if ($user->isAdmin()): ?>
-                                                        <span class="badge badge-primary">ADMIN</span>
-                                                    <?php else: ?>
-                                                        <span class="inline-flex items-center rounded-md bg-slate-800 px-1 py-1 text-xs font-medium text-slate-300">
-                                                            User
-                                                        </span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td class="p-4 text-slate-400 text-sm"><?= date('Y-m-d H:i', strtotime($user->getCreatedAt())) ?></td>
-                                                <td class="p-4 text-center">
-                                                    <div class="flex items-center justify-center gap-2">
-                                                        <span class="text-slate-300 font-medium"><?= $stats['total_listings'] ?></span>
-                                                        <span class="text-xs text-slate-500">
-                                                            (<?= $stats['active_listings'] ?> aktywnych, <?= $stats['sold_listings'] ?> sprzedanych)
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            <footer class="text-center p-6 border-t border-slate-800 bg-bgDark/80 backdrop-blur-custom text-slate-500 text-sm">
-                <p>© <?= date('Y') ?> Margonem Market. Kontakt: <span class="text-slate-300">persii05</span></p>
-            </footer>
+        <div id="mobile-nav-panel" class="mobile-nav">
+            <a class="nav-link" href="/admin">Ogłoszenia</a>
+            <a class="nav-link active" href="/admin-users">Użytkownicy</a>
+            <a class="nav-link" href="/">Powrót do strony</a>
+            <form method="POST" action="/logout" style="margin-top: 10px;">
+                <button type="submit" class="btn btn-danger" style="width: 100%;">Wyloguj</button>
+            </form>
         </div>
+
+        <main class="container">
+            
+            <h1 class="page-title">
+                <span class="material-symbols-outlined" style="color: var(--color-primary); font-size: 40px;">group</span>
+                Zarządzanie użytkownikami
+            </h1>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center; width: 60px;">ID</th>
+                            <th>Email</th>
+                            <th>Rola</th>
+                            <th>Data rejestracji</th>
+                            <th style="text-align: center;">Liczba ogłoszeń</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($users)): ?>
+                            <tr>
+                                <td colspan="5" style="padding: 48px; text-align: center; color: var(--color-text-muted);">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                        <p>Brak zarejestrowanych użytkowników</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($users as $userData): ?>
+                                <?php 
+                                    $user = $userData['user'];
+                                    $stats = $userData['stats'];
+                                ?>
+                                <tr>
+                                    <td style="text-align: center; color: var(--color-text-muted); font-family: monospace;">#<?= $user->getId() ?></td>
+                                    <td style="font-weight: 500; color: white;"><?= htmlspecialchars($user->getEmail()) ?></td>
+                                    <td>
+                                        <?php if ($user->isAdmin()): ?>
+                                            <span class="badge badge-admin">
+                                                ADMIN
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge badge-user">
+                                                User
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="color: var(--color-text-muted); font-size: 0.875rem;">
+                                        <?= date('Y-m-d H:i', strtotime($user->getCreatedAt())) ?>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="stat-group" style="justify-content: center;">
+                                            <span style="color: white; font-weight: bold; font-size: 1.1em;"><?= $stats['total_listings'] ?></span>
+                                            <span class="text-muted" style="font-size: 0.75rem;">
+                                                (<?= $stats['active_listings'] ?> akt. / <?= $stats['sold_listings'] ?> sprz.)
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+
+        <footer class="main-footer">
+            <p>© <?= date('Y') ?> Margonem Market. Kontakt: <span style="color: white;">persii05</span></p>
+        </footer>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.getElementById('mobile-menu-toggle');
+            const mobileNav = document.getElementById('mobile-nav-panel');
+            if (menuBtn && mobileNav) {
+                menuBtn.addEventListener('click', function() {
+                    mobileNav.classList.toggle('open');
+                    const icon = this.querySelector('.material-symbols-outlined');
+                    if (icon) {
+                        icon.textContent = mobileNav.classList.contains('open') ? 'close' : 'menu';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
