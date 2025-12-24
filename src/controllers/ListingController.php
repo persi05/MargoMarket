@@ -246,7 +246,7 @@ class ListingController extends AppController
         }
     }
 
-    public function delete(): void
+public function delete(): void
     {
         $this->requireAuth();
 
@@ -260,6 +260,18 @@ class ListingController extends AppController
 
         if ($listingId <= 0) {
             $this->redirect('/my-listings?error=invalid');
+            return;
+        }
+
+        $listing = $this->listingRepository->getListingById($listingId);
+
+        if (!$listing || $listing->getUserId() !== $userId) {
+            $this->redirect('/my-listings?error=invalid');
+            return;
+        }
+
+        if ($listing->isSold()) {
+            $this->redirect('/my-listings?error=cannot_delete_sold'); 
             return;
         }
 
