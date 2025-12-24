@@ -79,9 +79,7 @@
             background-color: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid #1e293b;
-            
             padding: 16px 40px; 
-            
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -325,6 +323,7 @@
                                     placeholder="np. Miecz Ognia"
                                     value="<?= htmlspecialchars($formData['item_name'] ?? '') ?>"
                                     required
+                                    maxlength="40"
                                 >
                             </div>
 
@@ -389,6 +388,7 @@
                                     placeholder="np. 50000"
                                     value="<?= htmlspecialchars($formData['price'] ?? '') ?>"
                                     min="1"
+                                    max="2000000000"
                                     required
                                 >
                             </div>
@@ -436,6 +436,7 @@
                                     placeholder="np. username#1234"
                                     value="<?= htmlspecialchars($formData['contact'] ?? '') ?>"
                                     required
+                                    maxlength="50"
                                 >
                             </div>
                         </div>
@@ -452,6 +453,7 @@
                                 class="form-input" 
                                 placeholder="https://example.com/image.png"
                                 value="<?= htmlspecialchars($formData['image_url'] ?? '') ?>"
+                                maxlength="255"
                             >
                         </div>
 

@@ -109,15 +109,17 @@ class ListingController extends AppController
             return;
         }
 
-        $itemName = trim($_POST['item_name'] ?? '');
+        $itemName = substr(trim($_POST['item_name'] ?? ''), 0, 60); 
+        $contact = substr(trim($_POST['contact'] ?? ''), 0, 50);
+        $imageUrl = substr(trim($_POST['image_url'] ?? ''), 0, 255);
+
         $itemTypeId = (int)($_POST['item_type_id'] ?? 0);
         $level = (int)($_POST['level'] ?? 0);
         $rarityId = (int)($_POST['rarity_id'] ?? 0);
-        $price = (int)($_POST['price'] ?? 0);
         $currencyId = (int)($_POST['currency_id'] ?? 0);
         $serverId = (int)($_POST['server_id'] ?? 0);
-        $contact = trim($_POST['contact'] ?? '');
-        $imageUrl = trim($_POST['image_url'] ?? '');
+        
+        $price = (int)($_POST['price'] ?? 0);
 
         $errors = [];
 
@@ -131,6 +133,10 @@ class ListingController extends AppController
 
         if ($price <= 0) {
             $errors[] = 'Cena musi być większa od 0';
+        }
+
+        if ($price > 2000000000) {
+            $errors[] = 'Cena musi być mniejsza niż 2000000000';
         }
 
         if (empty($contact)) {
