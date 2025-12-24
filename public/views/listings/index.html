@@ -393,6 +393,7 @@
                                 class="form-input"
                                 placeholder="Wpisz nazwę..."
                                 value="<?= htmlspecialchars($filters['search'] ?? '') ?>"
+                                maxlength="50"
                             >
                         </div>
                     </div>
@@ -418,6 +419,8 @@
                                 class="form-input"
                                 placeholder="Min"
                                 value="<?= htmlspecialchars($filters['min_level'] ?? '') ?>"
+                                min="0"
+                                max="300"
                                 style="text-align: center;"
                             >
                             <span class="range-separator">-</span>
@@ -427,6 +430,8 @@
                                 class="form-input"
                                 placeholder="Max"
                                 value="<?= htmlspecialchars($filters['max_level'] ?? '') ?>"
+                                min="0"
+                                max="300"
                                 style="text-align: center;"
                             >
                         </div>
@@ -553,7 +558,6 @@
                         <?php if ($currentPage > 1): ?>
                             <?php 
                                 $prevParams = array_merge($_GET, ['page' => $currentPage - 1]);
-                                // Usuwamy puste parametry
                                 $prevParams = array_filter($prevParams, function($v) { return $v !== ''; });
                             ?>
                             <a href="?<?= http_build_query($prevParams) ?>" class="pagination-btn" title="Poprzednia strona">

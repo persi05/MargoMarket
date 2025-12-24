@@ -14,13 +14,29 @@ class ListingController extends AppController
 
     public function index(): void
     {
-        $searchTerm = !empty($_GET['search']) ? $_GET['search'] : null;
+        $searchTerm = null;
+        if (!empty($_GET['search'])) {
+            $searchTerm = substr(trim($_GET['search']), 0, 50);
+        }
+
         $serverId = !empty($_GET['server']) ? (int)$_GET['server'] : null;
-        $minLevel = !empty($_GET['min_level']) ? (int)$_GET['min_level'] : 0;
-        $maxLevel = !empty($_GET['max_level']) ? (int)$_GET['max_level'] : 300;
+
+        $minLevel = 0;
+        if (isset($_GET['min_level']) && $_GET['min_level'] !== '') {
+            $val = (int)$_GET['min_level'];
+            $minLevel = max(0, min(300, $val));
+        }
+
+        $maxLevel = 300;
+        if (isset($_GET['max_level']) && $_GET['max_level'] !== '') {
+            $val = (int)$_GET['max_level'];
+            $maxLevel = max(0, min(300, $val));
+        }
+
         $itemTypeId = !empty($_GET['item_type']) ? (int)$_GET['item_type'] : null;
         $rarityId = !empty($_GET['rarity']) ? (int)$_GET['rarity'] : null;
         $currencyId = !empty($_GET['currency']) ? (int)$_GET['currency'] : null;
+        
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $limit = 50;
         $offset = ($page - 1) * $limit;
