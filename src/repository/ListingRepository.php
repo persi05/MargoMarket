@@ -324,72 +324,78 @@ class ListingRepository extends Repository
     }
 
     public function getAllListingsAdmin(
-    ?string $searchTerm = null,
-    ?int $serverId = null,
-    int $limit = 50,
-    int $offset = 0
-): array {
-    $query = "
-        SELECT 
-            l.id,
-            l.user_id,
-            l.item_name,
-            l.item_type_id,
-            it.name as item_type,
-            l.level,
-            l.rarity_id,
-            r.name as rarity,
-            l.price,
-            l.currency_id,
-            c.name as currency,
-            l.server_id,
-            s.name as server,
-            l.contact,
-            l.status_id,
-            ls.name as status,
-            l.image_url,
-            l.created_at,
-            l.sold_at,
-            u.email as user_email
-        FROM listings l
-        INNER JOIN item_types it ON l.item_type_id = it.id
-        INNER JOIN rarities r ON l.rarity_id = r.id
-        INNER JOIN currencies c ON l.currency_id = c.id
-        INNER JOIN servers s ON l.server_id = s.id
-        INNER JOIN listing_statuses ls ON l.status_id = ls.id
-        INNER JOIN users u ON l.user_id = u.id
-        WHERE 1=1
-            AND (:search_term::VARCHAR IS NULL OR l.item_name ILIKE '%' || :search_term || '%')
-            AND (:server_id::INTEGER IS NULL OR l.server_id = :server_id)
-        ORDER BY l.created_at DESC
-        LIMIT :limit OFFSET :offset
-    ";
+        ?string $searchTerm = null,
+        ?int $serverId = null,
+        ?string $status = null,
+        int $limit = 50,
+        int $offset = 0
+    ): array {
+        $query = "
+            SELECT DISTINCT
+                l.id,
+                l.user_id,
+                l.item_name,
+                l.item_type_id,
+                it.name as item_type,
+                l.level,
+                l.rarity_id,
+                r.name as rarity,
+                l.price,
+                l.currency_id,
+                c.name as currency,
+                l.server_id,
+                s.name as server,
+                l.contact,
+                l.status_id,
+                ls.name as status,
+                l.image_url,
+                l.created_at,
+                l.sold_at,
+                u.email as user_email
+            FROM listings l
+            INNER JOIN item_types it ON l.item_type_id = it.id
+            INNER JOIN rarities r ON l.rarity_id = r.id
+            INNER JOIN currencies c ON l.currency_id = c.id
+            INNER JOIN servers s ON l.server_id = s.id
+            INNER JOIN listing_statuses ls ON l.status_id = ls.id
+            INNER JOIN users u ON l.user_id = u.id
+            WHERE 1=1
+                AND (:search_term::VARCHAR IS NULL OR l.item_name ILIKE '%' || :search_term || '%')
+                AND (:server_id::INTEGER IS NULL OR l.server_id = :server_id)
+                AND (:status::VARCHAR IS NULL OR ls.name = :status) -- NOWY WARUNEK
+            ORDER BY l.created_at DESC
+            LIMIT :limit OFFSET :offset
+        ";
 
-    $results = $this->fetchAll($query, [
-        'search_term' => $searchTerm,
-        'server_id' => $serverId,
-        'limit' => $limit,
-        'offset' => $offset
-    ]);
+        $results = $this->fetchAll($query, [
+            'search_term' => $searchTerm,
+            'server_id' => $serverId,
+            'status' => $status,
+            'limit' => $limit,
+            'offset' => $offset
+        ]);
 
-    return $this->mapToListings($results);
-}
+        return $this->mapToListings($results);
+    }
 
-public function countAllListings(?string $searchTerm = null, ?int $serverId = null): int
-{
-    $query = "
-        SELECT COUNT(*) as count 
-        FROM listings l
-        WHERE 1=1
-            AND (:search_term::VARCHAR IS NULL OR l.item_name ILIKE '%' || :search_term || '%')
-            AND (:server_id::INTEGER IS NULL OR l.server_id = :server_id)
-    ";
-    
-    $result = $this->fetchOne($query, [
-        'search_term' => $searchTerm,
-        'server_id' => $serverId
-    ]);
-    
-    return $result ? (int) $result['count'] : 0;
-}
+    public function countAllListings(?string $searchTerm = null, ?int $serverId = null, ?string $status = null): int
+    {
+        $query = "
+            SELECT COUNT(DISTINCT l.id) as count 
+            FROM listings l
+            INNER JOIN listing_statuses ls ON l.status_id = ls.id -- JOIN POTRZEBNY DO FILTROWANIA PO STATUSIE
+            WHERE 1=1
+                AND (:search_term::VARCHAR IS NULL OR l.item_name ILIKE '%' || :search_term || '%')
+                AND (:server_id::INTEGER IS NULL OR l.server_id = :server_id)
+                AND (:status::VARCHAR IS NULL OR ls.name = :status) -- NOWY WARUNEK
+        ";
+        
+        $result = $this->fetchOne($query, [
+            'search_term' => $searchTerm,
+            'server_id' => $serverId,
+            'status' => $status
+        ]);
+        
+        return $result ? (int) $result['count'] : 0;
+    }
 }

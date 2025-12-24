@@ -21,6 +21,9 @@ class AdminController extends AppController
 
         $searchTerm = !empty($_GET['search']) ? $_GET['search'] : null;
         $serverId = !empty($_GET['server']) ? (int)$_GET['server'] : null;
+        
+        $status = !empty($_GET['status']) ? $_GET['status'] : null;
+
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $limit = 50;
         $offset = ($page - 1) * $limit;
@@ -28,13 +31,14 @@ class AdminController extends AppController
         $listings = $this->listingRepository->getAllListingsAdmin(
             $searchTerm,
             $serverId,
+            $status,
             $limit,
             $offset
         );
 
         $servers = $this->listingRepository->getServers();
         
-        $totalListings = $this->listingRepository->countAllListings($searchTerm, $serverId);
+        $totalListings = $this->listingRepository->countAllListings($searchTerm, $serverId, $status);
         
         $totalPages = ceil($totalListings / $limit);
         $totalUsers = $this->userRepository->countUsers();
@@ -48,7 +52,8 @@ class AdminController extends AppController
             'totalUsers' => $totalUsers,
             'filters' => [
                 'search' => $searchTerm,
-                'server' => $serverId
+                'server' => $serverId,
+                'status' => $status
             ]
         ]);
     }

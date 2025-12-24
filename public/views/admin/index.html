@@ -405,6 +405,15 @@
                             class="form-input"
                         />
                     </div>
+                    
+                    <div style="flex: 1; min-width: 150px;">
+                        <select name="status" class="form-select">
+                            <option value="" style="background-color: var(--color-card-dark);">Wszystkie statusy</option>
+                            <option value="active" <?= ($filters['status'] ?? '') == 'active' ? 'selected' : '' ?> style="background-color: var(--color-card-dark);">Aktywne</option>
+                            <option value="sold" <?= ($filters['status'] ?? '') == 'sold' ? 'selected' : '' ?> style="background-color: var(--color-card-dark);">Sprzedane</option>
+                        </select>
+                    </div>
+
                     <div style="flex: 1; min-width: 200px;">
                         <select name="server" class="form-select">
                             <option value="" style="background-color: var(--color-card-dark);">Wszystkie serwery</option>
@@ -430,17 +439,19 @@
                             <th style="text-align: center; width: 60px;">ID</th>
                             <th>Nazwa przedmiotu</th>
                             <th>Użytkownik</th>
+                            <th style="text-align: center;">Status</th>
                             <th style="text-align: center;">Poziom</th>
                             <th>Cena</th>
                             <th>Serwer</th>
                             <th>Data dodania</th>
+                            <th>Data sprzedaży</th>
                             <th style="text-align: center;">Akcje</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($listings)): ?>
                             <tr>
-                                <td colspan="8" style="padding: 48px; text-align: center; color: var(--color-text-muted);">
+                                <td colspan="10" style="padding: 48px; text-align: center; color: var(--color-text-muted);">
                                     <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
                                         <span class="material-symbols-outlined" style="font-size: 36px; opacity: 0.5;">folder_off</span>
                                         <p>Brak ogłoszeń spełniających kryteria</p>
@@ -460,6 +471,15 @@
                                             <?= htmlspecialchars($listing->getUserEmail()) ?>
                                         </div>
                                     </td>
+                                    
+                                    <td style="text-align: center;">
+                                        <?php if ($listing->isActive()): ?>
+                                            <span style="color: var(--color-success); font-weight: bold; font-size: 0.75rem; border: 1px solid var(--color-success); padding: 2px 6px; border-radius: 4px;">AKTYWNE</span>
+                                        <?php else: ?>
+                                            <span style="color: var(--color-danger); font-weight: bold; font-size: 0.75rem; border: 1px solid var(--color-danger); padding: 2px 6px; border-radius: 4px;">SPRZEDANE</span>
+                                        <?php endif; ?>
+                                    </td>
+
                                     <td style="text-align: center; color: var(--color-text-muted);"><?= $listing->getLevel() ?></td>
                                     <td style="color: var(--color-primary); font-family: monospace; font-weight: 500;">
                                         <?= htmlspecialchars($listing->getFormattedPrice()) ?>
@@ -472,6 +492,15 @@
                                     <td style="color: var(--color-text-muted); font-size: 0.875rem; font-family: monospace;">
                                         <?= date('Y-m-d', strtotime($listing->getCreatedAt())) ?>
                                     </td>
+                                    
+                                    <td style="color: var(--color-text-muted); font-size: 0.875rem; font-family: monospace;">
+                                        <?php if ($listing->getSoldAt()): ?>
+                                            <?= date('Y-m-d H:i', strtotime($listing->getSoldAt())) ?>
+                                        <?php else: ?>
+                                            -
+                                        <?php endif; ?>
+                                    </td>
+
                                     <td style="text-align: center;">
                                         <form method="POST" action="/admin-delete" data-confirm="Czy na pewno chcesz trwale usunąć to ogłoszenie?" style="display: inline;">
                                             <input type="hidden" name="listing_id" value="<?= $listing->getId() ?>" />
@@ -489,20 +518,32 @@
 
             <?php if ($totalPages > 1): ?>
                 <div class="pagination">
+                    <?php 
+                        $baseParams = [];
+                        if (!empty($filters['search'])) $baseParams['search'] = $filters['search'];
+                        if (!empty($filters['server'])) $baseParams['server'] = $filters['server'];
+                        if (!empty($filters['status'])) $baseParams['status'] = $filters['status'];
+                        
+                        $buildUrl = function($page) use ($baseParams) {
+                            $params = array_merge(['page' => $page], $baseParams);
+                            return '?' . http_build_query($params);
+                        };
+                    ?>
+
                     <?php if ($currentPage > 1): ?>
-                        <a href="?page=<?= $currentPage - 1 ?><?= !empty($filters['search']) ? '&search=' . urlencode($filters['search']) : '' ?><?= !empty($filters['server']) ? '&server=' . urlencode($filters['server']) : '' ?>" class="page-link">
+                        <a href="<?= $buildUrl($currentPage - 1) ?>" class="page-link">
                             <span class="material-symbols-outlined">chevron_left</span>
                         </a>
                     <?php endif; ?>
 
                     <?php for ($i = 1; $i <= min($totalPages, 5); $i++): ?>
-                        <a href="?page=<?= $i ?><?= !empty($filters['search']) ? '&search=' . urlencode($filters['search']) : '' ?><?= !empty($filters['server']) ? '&server=' . urlencode($filters['server']) : '' ?>" class="page-link <?= $i === $currentPage ? 'active' : '' ?>">
+                        <a href="<?= $buildUrl($i) ?>" class="page-link <?= $i === $currentPage ? 'active' : '' ?>">
                             <?= $i ?>
                         </a>
                     <?php endfor; ?>
 
                     <?php if ($currentPage < $totalPages): ?>
-                        <a href="?page=<?= $currentPage + 1 ?><?= !empty($filters['search']) ? '&search=' . urlencode($filters['search']) : '' ?><?= !empty($filters['server']) ? '&server=' . urlencode($filters['server']) : '' ?>" class="page-link">
+                        <a href="<?= $buildUrl($currentPage + 1) ?>" class="page-link">
                             <span class="material-symbols-outlined">chevron_right</span>
                         </a>
                     <?php endif; ?>
