@@ -5,7 +5,7 @@ require_once 'src/repository/UserRepository.php';
 
 session_start();
 
-$userRepository = new UserRepository();
+$userRepository = UserRepository::getInstance();
 
 # not good but acceptable
 if (random_int(1, 100) === 1) { 

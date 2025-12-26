@@ -5,7 +5,23 @@ require_once __DIR__ . '/../models/User.php';
 
 class UserRepository extends Repository
 {
+    private static ?UserRepository $instance = null;
 
+    private function __construct()
+    {
+        parent::__construct();
+    }
+
+    private function __clone() {}
+
+    public static function getInstance(): UserRepository
+    {
+        if (self::$instance === null) {
+            self::$instance = new UserRepository();
+        }
+        return self::$instance;
+    }
+    
     public function getUserByEmail(string $email): ?User
     {
         $query = "

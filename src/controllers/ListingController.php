@@ -9,7 +9,7 @@ class ListingController extends AppController
 
     public function __construct()
     {
-        $this->listingRepository = new ListingRepository();
+        $this->listingRepository = ListingRepository::getInstance();
     }
 
     public function index(): void

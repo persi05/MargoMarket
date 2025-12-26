@@ -9,11 +9,13 @@ class SecurityController extends AppController
 
     public function __construct()
     {
-        $this->userRepository = new UserRepository();
+        $this->userRepository = UserRepository::getInstance();
     }
 
     public function login(): void
     {
+        $this->requireHttps();
+
         if ($this->getCurrentUser()) {
             $this->redirect('/');
         }
@@ -66,6 +68,8 @@ class SecurityController extends AppController
 
     public function register(): void
     {
+        $this->requireHttps();
+
         if ($this->getCurrentUser()) {
             $this->redirect('/');
         }

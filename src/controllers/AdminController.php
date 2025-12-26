@@ -11,8 +11,8 @@ class AdminController extends AppController
 
     public function __construct()
     {
-        $this->listingRepository = new ListingRepository();
-        $this->userRepository = new UserRepository();
+        $this->listingRepository = ListingRepository::getInstance();
+        $this->userRepository = UserRepository::getInstance();
     }
 
     public function index(): void

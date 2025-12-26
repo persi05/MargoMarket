@@ -5,7 +5,23 @@ require_once __DIR__ . '/../models/Listing.php';
 
 class ListingRepository extends Repository
 {
+    private static ?ListingRepository $instance = null;
 
+    private function __construct()
+    {
+        parent::__construct();
+    }
+
+    private function __clone() {}
+
+    public static function getInstance(): ListingRepository
+    {
+        if (self::$instance === null) {
+            self::$instance = new ListingRepository();
+        }
+        return self::$instance;
+    }
+    
     public function getActiveListings(int $limit = 50, ?int $lastId = null): array
     {
         $query = "SELECT * FROM active_listings_view ";
@@ -66,50 +82,6 @@ class ListingRepository extends Repository
         ]);
 
         return $this->mapToListings($results);
-    }
-
-    public function getListingById(int $id): ?Listing
-    {
-        $query = "
-            SELECT 
-                l.id,
-                l.user_id,
-                l.item_name,
-                l.item_type_id,
-                it.name as item_type,
-                l.level,
-                l.rarity_id,
-                r.name as rarity,
-                l.price,
-                l.currency_id,
-                c.name as currency,
-                l.server_id,
-                s.name as server,
-                l.contact,
-                l.status_id,
-                ls.name as status,
-                l.image_url,
-                l.created_at,
-                l.sold_at,
-                u.email as user_email
-            FROM listings l
-            INNER JOIN item_types it ON l.item_type_id = it.id
-            INNER JOIN rarities r ON l.rarity_id = r.id
-            INNER JOIN currencies c ON l.currency_id = c.id
-            INNER JOIN servers s ON l.server_id = s.id
-            INNER JOIN listing_statuses ls ON l.status_id = ls.id
-            INNER JOIN users u ON l.user_id = u.id
-            WHERE l.id = :id
-            LIMIT 1
-        ";
-
-        $result = $this->fetchOne($query, ['id' => $id]);
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->mapToListing($result);
     }
 
     public function getUserListings(int $userId): array

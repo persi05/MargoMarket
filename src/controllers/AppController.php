@@ -12,6 +12,19 @@ class AppController
         return $_SERVER['REQUEST_METHOD'] === 'POST';
     }
 
+    protected function requireHttps(): void
+    {
+        $isHttps = (
+            (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || $_SERVER['SERVER_PORT'] == 443 
+        );
+
+        if (!$isHttps) {
+            http_response_code(403);
+            include 'public/views/403.html';
+
+        }
+    }
+
     protected function render(string $template = null, array $variables = []): void
     {
         $templatePath = 'public/views/'.$template.'.html';
