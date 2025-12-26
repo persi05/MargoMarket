@@ -3,6 +3,12 @@
 require_once 'Routing.php';
 require_once 'src/repository/UserRepository.php';
 
+session_set_cookie_params([
+    'httponly' => true,
+    'secure' => true,
+    'samesite' => 'Lax'
+]);
+
 session_start();
 
 $userRepository = UserRepository::getInstance();
