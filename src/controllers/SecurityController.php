@@ -16,12 +16,26 @@ class SecurityController extends AppController
     {
         $this->requireHttps();
 
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
         if ($this->getCurrentUser()) {
             $this->redirect('/');
         }
 
         if (!$this->isPost()) {
-            $this->render('auth/login');
+            $this->render('auth/login', [
+                'csrf_token' => $_SESSION['csrf_token']
+            ]);
+            return;
+        }
+
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            $this->render('auth/login', [
+                'messages' => 'Błąd bezpieczeństwa (CSRF). Odśwież stronę i spróbuj ponownie.',
+                'csrf_token' => $_SESSION['csrf_token']
+            ]);
             return;
         }
 
@@ -31,7 +45,8 @@ class SecurityController extends AppController
         if (empty($email) || empty($password)) {
             $this->render('auth/login', [
                 'messages' => 'Wypełnij wszystkie pola',
-                'email' => $email
+                'email' => $email,
+                'csrf_token' => $_SESSION['csrf_token']
             ]);
             return;
         }
@@ -41,7 +56,8 @@ class SecurityController extends AppController
         if (!$user) {
             $this->render('auth/login', [
                 'messages' => 'Nieprawidłowy email lub hasło',
-                'email' => $email
+                'email' => $email,
+                'csrf_token' => $_SESSION['csrf_token']
             ]);
             return;
         }
@@ -49,7 +65,8 @@ class SecurityController extends AppController
         if (!$this->userRepository->verifyPassword($user, $password)) {
             $this->render('auth/login', [
                 'messages' => 'Nieprawidłowy email lub hasło',
-                'email' => $email
+                'email' => $email,
+                'csrf_token' => $_SESSION['csrf_token']
             ]);
             return;
         }
@@ -82,6 +99,22 @@ class SecurityController extends AppController
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
+
+        if (strlen($email) > 255) {
+            $this->render('auth/register', [
+                'messages' => 'Adres email jest zbyt długi (maksymalnie 255 znaków)',
+                'email' => $email
+            ]);
+            return;
+        }
+
+        if (strlen($password) > 128) {
+            $this->render('auth/register', [
+                'messages' => 'Hasło jest zbyt długie (maksymalnie 128 znaków)',
+                'email' => $email
+            ]);
+            return;
+        }
 
         if (empty($email) || empty($password) || empty($confirmPassword)) {
             $this->render('auth/register', [
