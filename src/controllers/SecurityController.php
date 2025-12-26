@@ -71,6 +71,8 @@ class SecurityController extends AppController
             return;
         }
 
+        session_regenerate_id(true);
+
         $sessionToken = bin2hex(random_bytes(32));
         
         $this->userRepository->createSession($user->getId(), $sessionToken, 3600);
