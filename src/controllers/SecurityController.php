@@ -168,9 +168,14 @@ class SecurityController extends AppController
             return;
         }
 
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
         $this->render('auth/login', [
             'success' => 'Konto utworzone! Możesz się teraz zalogować.',
-            'email' => $email
+            'email' => $email,
+            'csrf_token' => $_SESSION['csrf_token']
         ]);
     }
 
