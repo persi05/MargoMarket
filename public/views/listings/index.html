@@ -9,6 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="/public/styles/main.css">
 </head>
+
+
+
 <body>
     <div class="bg-overlay">
         <div class="bg-overlay-shade"></div>
@@ -35,6 +38,7 @@
                     <a href="/" class="nav-link active">Ogłoszenia</a>
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <a href="/my-listings" class="nav-link">Moje ogłoszenia</a>
+                        <a href="/favorites" class="nav-link">Ulubione</a>
                         <a href="/create" class="nav-link">Stwórz ogłoszenie</a>
                     <?php endif; ?>
                 </nav>
@@ -60,6 +64,7 @@
             <a href="/" class="nav-link active">Ogłoszenia</a>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <a href="/my-listings" class="nav-link">Moje ogłoszenia</a>
+                <a href="/favorites" class="nav-link">Ulubione</a>
                 <a href="/create" class="nav-link">Stwórz ogłoszenie</a>
                 <form method="POST" action="/logout">
                     <button type="submit" class="btn btn-danger btn-block">Wyloguj</button>
@@ -185,6 +190,9 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <?php if (isset($_SESSION['user_id'])): ?>
+                                        <th style="width: 50px; text-align: center;"></th>
+                                    <?php endif; ?>
                                     <th>Nazwa przedmiotu</th>
                                     <th class="text-center" style="width: 100px;">Poziom</th>
                                     <th style="width: 150px;">Rzadkość</th>
@@ -196,7 +204,7 @@
                             <tbody>
                                 <?php if (empty($listings)): ?>
                                     <tr>
-                                        <td colspan="6">
+                                        <td colspan="<?= isset($_SESSION['user_id']) ? 7 : 6 ?>">
                                             <div class="empty-state">
                                                 <span class="material-symbols-outlined empty-icon">search_off</span>
                                                 <p class="empty-text">Nie znaleziono żadnych ogłoszeń spełniających kryteria.</p>
@@ -206,6 +214,19 @@
                                 <?php else: ?>
                                     <?php foreach ($listings as $listing): ?>
                                         <tr>
+                                            <?php if (isset($_SESSION['user_id'])): ?>
+                                                <td style="text-align: center;">
+                                                    <?php $isFav = in_array($listing->getId(), $favoriteIds); ?>
+                                                    <button 
+                                                        class="favorite-btn <?= $isFav ? 'is-favorite' : '' ?>" 
+                                                        data-listing-id="<?= $listing->getId() ?>"
+                                                        title="<?= $isFav ? 'Usuń z ulubionych' : 'Dodaj do ulubionych' ?>"
+                                                        type="button"
+                                                    >
+                                                        <span class="material-symbols-outlined">star</span>
+                                                    </button>
+                                                </td>
+                                            <?php endif; ?>
                                             <td>
                                                 <span class="item-name"><?= htmlspecialchars($listing->getItemName()) ?></span>
                                             </td>
@@ -298,6 +319,13 @@
 
     <template id="listing-row-template">
         <tr>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <td style="text-align: center;">
+                    <button class="favorite-btn" title="Dodaj do ulubionych">
+                        <span class="material-symbols-outlined">star</span>
+                    </button>
+                </td>
+            <?php endif; ?>
             <td>
                 <span class="item-name"></span>
             </td>
@@ -323,6 +351,7 @@
 
     <script src="/public/scripts/main.js" defer></script>
     <script src="/public/scripts/search.js" defer></script>
+    <script src="/public/scripts/favorites.js" defer></script>
 
 </body>
 </html>

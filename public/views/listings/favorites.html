@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moje ogłoszenia - Margonem Market</title>
+    <title>Ulubione - Margonem Market</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
@@ -32,8 +32,8 @@
                         </a>
                     <?php endif; ?>
                     <a href="/" class="nav-link">Ogłoszenia</a>
-                    <a href="/my-listings" class="nav-link active">Moje ogłoszenia</a>
-                    <a href="/favorites" class="nav-link">Ulubione</a>
+                    <a href="/my-listings" class="nav-link">Moje ogłoszenia</a>
+                    <a href="/favorites" class="nav-link active">Ulubione</a>
                     <a href="/create" class="nav-link">Stwórz ogłoszenie</a>
                 </nav>
 
@@ -52,7 +52,8 @@
                 <a href="/admin" class="nav-link">Panel Admina</a>
             <?php endif; ?>
             <a href="/" class="nav-link">Ogłoszenia</a>
-            <a href="/my-listings" class="nav-link active">Moje ogłoszenia</a>
+            <a href="/my-listings" class="nav-link">Moje ogłoszenia</a>
+            <a href="/favorites" class="nav-link active">Ulubione</a>
             <a href="/create" class="nav-link">Stwórz ogłoszenie</a>
             <form method="POST" action="/logout">
                 <button type="submit" class="btn btn-danger btn-block">Wyloguj</button>
@@ -62,12 +63,12 @@
         <main class="main-content">
             <div class="page-header">
                 <h1 class="page-title">
-                    <span class="material-symbols-outlined">inventory</span>
-                    Zarządzaj ogłoszeniami
+                    <span class="material-symbols-outlined" style="color: #fbbf24;">star</span>
+                    Ulubione ogłoszenia
                 </h1>
-                <a href="/create" class="btn btn-primary">
-                    <span class="material-symbols-outlined">add_circle</span>
-                    Dodaj nowe ogłoszenie
+                <a href="/" class="btn btn-primary">
+                    <span class="material-symbols-outlined">search</span>
+                    Przeglądaj ogłoszenia
                 </a>
             </div>
 
@@ -81,17 +82,12 @@
             <?php if (empty($listings)): ?>
                 <div class="empty-state">
                     <div class="empty-icon-wrapper">
-                        <span class="material-symbols-outlined empty-icon">inventory_2</span>
+                        <span class="material-symbols-outlined empty-icon" style="color: #fbbf24;">star_outline</span>
                     </div>
-                    <h3 class="empty-title">Nie masz jeszcze żadnych ogłoszeń</h3>
-                    <p class="empty-text">Kliknij przycisk powyżej, aby wystawić swój pierwszy przedmiot na sprzedaż i zacząć zarabiać!</p>
+                    <h3 class="empty-title">Nie masz jeszcze żadnych ulubionych</h3>
+                    <p class="empty-text">Przeglądaj ogłoszenia i klikaj gwiazdkę, aby dodać przedmioty do swoich ulubionych!</p>
                 </div>
             <?php else: ?>
-                <?php
-                $activeListings = array_filter($listings, fn($l) => $l->isActive());
-                $soldListings = array_filter($listings, fn($l) => $l->isSold());
-                ?>
-
                 <div class="filter-buttons">
                     <button onclick="filterListings('all')" id="filter-all" class="filter-btn active">
                         <span class="material-symbols-outlined" style="font-size: 18px;">list</span>
@@ -99,11 +95,11 @@
                     </button>
                     <button onclick="filterListings('active')" id="filter-active" class="filter-btn">
                         <span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span>
-                        Aktywne <span class="filter-count">(<?= count($activeListings) ?>)</span>
+                        Aktywne <span class="filter-count">(<?= count(array_filter($listings, fn($l) => $l->isActive())) ?>)</span>
                     </button>
                     <button onclick="filterListings('sold')" id="filter-sold" class="filter-btn">
                         <span class="material-symbols-outlined" style="font-size: 18px;">sell</span>
-                        Sprzedane <span class="filter-count">(<?= count($soldListings) ?>)</span>
+                        Sprzedane <span class="filter-count">(<?= count(array_filter($listings, fn($l) => $l->isSold())) ?>)</span>
                     </button>
                 </div>
 
@@ -122,6 +118,13 @@
                                         AKTYWNE
                                     </div>
                                 <?php endif; ?>
+                                
+                                <form method="POST" action="/favorite-remove" style="position: absolute; top: 12px; left: 12px;">
+                                    <input type="hidden" name="listing_id" value="<?= $listing->getId() ?>">
+                                    <button type="submit" class="favorite-remove-btn" title="Usuń z ulubionych">
+                                        <span class="material-symbols-outlined">star</span>
+                                    </button>
+                                </form>
                             </div>
 
                             <div class="card-content">
@@ -130,6 +133,12 @@
                                 </h3>
 
                                 <div class="card-details">
+                                    <div class="card-detail-row">
+                                        <span class="card-detail-label">
+                                            <span class="material-symbols-outlined">person</span> Właściciel
+                                        </span>
+                                        <span class="card-detail-value" style="font-size: 0.85rem;"><?= htmlspecialchars($listing->getUserEmail()) ?></span>
+                                    </div>
                                     <div class="card-detail-row">
                                         <span class="card-detail-label">
                                             <span class="material-symbols-outlined">category</span> Typ
@@ -154,32 +163,17 @@
                                         </span>
                                         <span class="card-detail-value"><?= htmlspecialchars($listing->getServerName()) ?></span>
                                     </div>
+                                    <div class="card-detail-row">
+                                        <span class="card-detail-label">
+                                            <span class="material-symbols-outlined">chat</span> Kontakt
+                                        </span>
+                                        <span class="card-detail-value" style="font-size: 0.85rem;"><?= htmlspecialchars($listing->getContact()) ?></span>
+                                    </div>
                                 </div>
 
                                 <div class="card-footer">
                                     <div class="card-price">
                                         <?= htmlspecialchars($listing->getFormattedPrice()) ?>
-                                    </div>
-
-                                    <div class="card-actions">
-                                        <?php if ($listing->isActive()): ?>
-                                            <form method="POST" action="/mark-as-sold">
-                                                <input type="hidden" name="listing_id" value="<?= $listing->getId() ?>">
-                                                <button type="submit" class="btn btn-success">
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">sell</span>
-                                                    Sprzedane
-                                                </button>
-                                            </form>
-                                        <?php endif; ?>
-                                        
-                                        <?php if (!$listing->isSold()): ?>
-                                            <form method="POST" action="/delete-listing" class="delete-form" onsubmit="return confirm('Czy na pewno chcesz usunąć to ogłoszenie?');">
-                                                <input type="hidden" name="listing_id" value="<?= $listing->getId() ?>">
-                                                <button type="submit" class="btn btn-danger btn-icon" title="Usuń ogłoszenie">
-                                                    <span class="material-symbols-outlined">delete</span>
-                                                </button>
-                                            </form>
-                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>

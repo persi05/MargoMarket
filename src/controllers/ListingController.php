@@ -2,14 +2,17 @@
 
 require_once 'AppController.php';
 require_once __DIR__ . '/../repository/ListingRepository.php';
+require_once __DIR__ . '/../repository/FavoriteRepository.php';
 
 class ListingController extends AppController
 {
     private ListingRepository $listingRepository;
+    private FavoriteRepository $favoriteRepository;
 
     public function __construct()
     {
         $this->listingRepository = ListingRepository::getInstance();
+        $this->favoriteRepository = FavoriteRepository::getInstance();
     }
 
     public function index(): void
@@ -53,6 +56,11 @@ class ListingController extends AppController
             $offset
         );
 
+        $favoriteIds = [];
+        if ($this->getCurrentUser()) {
+            $favoriteIds = $this->favoriteRepository->getUserFavoriteIds($this->getCurrentUser());
+        }
+
         $servers = $this->listingRepository->getServers();
         $itemTypes = $this->listingRepository->getItemTypes();
         $rarities = $this->listingRepository->getRarities();
@@ -78,6 +86,7 @@ class ListingController extends AppController
             'currencies' => $currencies,
             'currentPage' => $page,
             'totalPages' => $totalPages,
+            'favoriteIds' => $favoriteIds,
             'filters' => [
                 'search' => $searchTerm,
                 'server' => $serverId,
@@ -313,5 +322,68 @@ class ListingController extends AppController
             ]);
             exit();
         }
+    }
+
+    public function favorites(): void
+    {
+        $this->requireAuth();
+        $userId = $this->getCurrentUser();
+        
+        $favorites = $this->favoriteRepository->getUserFavorites($userId);
+        $favoriteIds = $this->favoriteRepository->getUserFavoriteIds($userId);
+
+        $this->render('listings/favorites', [
+            'listings' => $favorites,
+            'favoriteIds' => $favoriteIds
+        ]);
+    }
+
+    public function toggleFavorite(): void
+    {
+        $this->requireAuth();
+
+        if (!$this->isPost()) {
+            header('Content-Type: application/json');
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            exit();
+        }
+
+        $listingId = (int)($_POST['listing_id'] ?? 0);
+        if ($listingId === 0) {
+             $content = trim(file_get_contents("php://input"));
+             $decoded = json_decode($content, true);
+             $listingId = (int)($decoded['listing_id'] ?? 0);
+        }
+
+        if ($listingId <= 0) {
+            header('Content-Type: application/json');
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid listing ID']);
+            exit();
+        }
+
+        $userId = $this->getCurrentUser();
+        
+        $isFavorite = $this->favoriteRepository->isFavorite($userId, $listingId);
+
+        if ($isFavorite) {
+            $success = $this->favoriteRepository->removeFavorite($userId, $listingId);
+            $message = 'Usunięto z ulubionych';
+            $newState = false;
+        } else {
+            $success = $this->favoriteRepository->addFavorite($userId, $listingId);
+            $message = 'Dodano do ulubionych';
+            $newState = true;
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => $success,
+            'message' => $message,
+            'isFavorite' => $newState,
+            'action' => $newState ? 'added' : 'removed'
+        ]);
+        exit();
     }
 }

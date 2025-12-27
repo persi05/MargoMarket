@@ -21,28 +21,6 @@ class ListingRepository extends Repository
         }
         return self::$instance;
     }
-    
-    public function getActiveListings(int $limit = 50, ?int $lastId = null): array
-    {
-        $query = "SELECT * FROM active_listings_view ";
-        
-        if ($lastId !== null) {
-            $query .= "WHERE id > :last_id ";
-        }
-
-        $query .= "ORDER BY id ASC LIMIT :limit";
-
-        $stmt = $this->getConnection()->prepare($query);
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-
-        if ($lastId !== null) {
-            $stmt->bindValue(':last_id', $lastId, PDO::PARAM_INT);
-        }
-
-        $stmt->execute();
-        
-        return $this->mapToListings($stmt->fetchAll(PDO::FETCH_ASSOC));
-    }
 
     public function searchListings(
         ?string $searchTerm = null,
@@ -217,18 +195,6 @@ class ListingRepository extends Repository
         return $this->fetchAll($query);
     }
 
-    public function countActiveListings(): int
-    {
-        $query = "
-            SELECT COUNT(*) as count 
-            FROM listings l
-            INNER JOIN listing_statuses ls ON l.status_id = ls.id
-            WHERE ls.name = 'active'
-        ";
-        $result = $this->fetchOne($query);
-        return $result ? (int) $result['count'] : 0;
-    }
-
     private function mapToListing(array $data): Listing
     {
         return new Listing(
@@ -366,26 +332,41 @@ class ListingRepository extends Repository
         return $result ? (int) $result['count'] : 0;
     }
 
-    public function getListingsByTitle(string $searchString): array
+    public function toggleFavorite(): void
     {
-        $searchString = '%' . strtolower($searchString) . '%';
-        $query = "
-            SELECT 
-                l.item_name,
-                l.price,
-                l.level,
-                r.name as rarity_name,
-                s.name as server_name,
-                u.email
-            FROM listings l
-            INNER JOIN rarities r ON l.rarity_id = r.id
-            INNER JOIN servers s ON l.server_id = s.id
-            INNER JOIN users u ON l.user_id = u.id
-            INNER JOIN listing_statuses ls ON l.status_id = ls.id
-            WHERE ls.name = 'active' 
-            AND LOWER(l.item_name) LIKE :search
-        ";
+        $this->requireAuth();
 
-        return $this->fetchAll($query, ['search' => $searchString]);
+        if (!$this->isPost()) {
+            $this->json(['success' => false, 'message' => 'Invalid request method'], 405);
+            return;
+        }
+
+        $listingId = (int)($_POST['listing_id'] ?? 0);
+
+        if ($listingId <= 0) {
+            $this->json(['success' => false, 'message' => 'Invalid listing ID'], 400);
+            return;
+        }
+
+        $userId = $this->getCurrentUser();
+        
+        $isFavorite = $this->favoriteRepository->isFavorite($userId, $listingId);
+
+        if ($isFavorite) {
+            $success = $this->favoriteRepository->removeFavorite($userId, $listingId);
+            $message = 'Usunięto z ulubionych';
+            $newState = false;
+        } else {
+            $success = $this->favoriteRepository->addFavorite($userId, $listingId);
+            $message = 'Dodano do ulubionych';
+            $newState = true;
+        }
+
+        $this->json([
+            'success' => $success,
+            'message' => $message,
+            'isFavorite' => $newState,
+            'action' => $newState ? 'added' : 'removed'
+        ]);
     }
 }

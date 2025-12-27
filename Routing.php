@@ -50,6 +50,22 @@ class Routing
             'controller' => 'ListingController',
             'action' => 'search'
         ],
+        'favorites' => [
+            'controller' => 'ListingController',
+            'action' => 'favorites'
+        ],
+        'favorite-add' => [
+            'controller' => 'ListingController',
+            'action' => 'addToFavorites'
+        ],
+        'favorite-remove' => [
+            'controller' => 'ListingController',
+            'action' => 'removeFromFavorites'
+        ],
+        'favorite-toggle' => [
+            'controller' => 'ListingController',
+            'action' => 'toggleFavorite'
+        ],
         
         'admin' => [
             'controller' => 'AdminController',
