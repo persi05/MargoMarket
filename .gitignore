@@ -4,9 +4,6 @@
 
 .env
 
-*.key
-*.crt
-*.pem
 
 *.log
 .DS_Store
