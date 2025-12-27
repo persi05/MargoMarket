@@ -113,25 +113,6 @@ class Listing
         return number_format($this->price, 0, ',', ' ').' PLN';
     }
 
-    public function getShortPrice(): string
-    {
-        $price = $this->price;
-        $suffix = '';
-
-        if ($price >= 1000000) {
-            $price = $price / 1000000;
-            $suffix = 'm';
-        } elseif ($price >= 1000) {
-            $price = $price / 1000;
-            $suffix = 'k';
-        }
-
-        $formatted = number_format($price, 1, '.', '');
-        $formatted = rtrim(rtrim($formatted, '0'), '.');
-        
-        return $formatted.$suffix.($this->currencyName === 'pln' ? ' PLN' : '');
-    }
-
     public function toArray(): array
     {
         return [
