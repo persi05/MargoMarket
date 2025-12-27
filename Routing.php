@@ -46,6 +46,10 @@ class Routing
             'controller' => 'ListingController',
             'action' => 'delete'
         ],
+        'search' => [
+            'controller' => 'ListingController',
+            'action' => 'search'
+        ],
         
         'admin' => [
             'controller' => 'AdminController',

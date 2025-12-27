@@ -307,7 +307,37 @@
 
     </div>
 
+    <template id="listing-row-template">
+        <tr>
+            <td style="text-align: center;">
+                <div class="item-image" style="margin: 0 auto;">
+                    </div>
+            </td>
+            <td>
+                <span class="item-name"></span>
+            </td>
+            <td style="text-align: center; color: var(--color-text-muted);" class="item-level">
+            </td>
+            <td>
+                <span class="badge badge-default item-rarity"></span>
+            </td>
+            <td>
+                <span class="price-text"></span>
+            </td>
+            <td>
+                <div class="contact-info">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">chat</span>
+                    <span class="item-email"></span>
+                </div>
+            </td>
+            <td>
+                <span class="badge badge-default item-server"></span>
+            </td>
+        </tr>
+    </template>
+
     <script src="/public/scripts/main.js" defer></script>
+    <script src="/public/scripts/search.js" defer></script>
 
 </body>
 </html>

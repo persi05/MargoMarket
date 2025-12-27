@@ -370,4 +370,28 @@ class ListingRepository extends Repository
         
         return $result ? (int) $result['count'] : 0;
     }
+
+    public function getListingsByTitle(string $searchString): array
+    {
+        $searchString = '%' . strtolower($searchString) . '%';
+        $query = "
+            SELECT 
+                l.item_name,
+                l.price,
+                l.level,
+                l.image_url as image,
+                r.name as rarity_name,
+                s.name as server_name,
+                u.email
+            FROM listings l
+            INNER JOIN rarities r ON l.rarity_id = r.id
+            INNER JOIN servers s ON l.server_id = s.id
+            INNER JOIN users u ON l.user_id = u.id
+            INNER JOIN listing_statuses ls ON l.status_id = ls.id
+            WHERE ls.name = 'active' 
+            AND LOWER(l.item_name) LIKE :search
+        ";
+
+        return $this->fetchAll($query, ['search' => $searchString]);
+    }
 }
