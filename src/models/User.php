@@ -55,49 +55,8 @@ class User
         return $this->createdAt;
     }
 
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
-    public function setEmail(string $email): void
-    {
-        $this->email = $email;
-    }
-
-    public function setPassword(string $password): void
-    {
-        $this->password = $password;
-    }
-
-    public function setRoleId(int $roleId): void
-    {
-        $this->roleId = $roleId;
-    }
-
-    public function setRoleName(string $roleName): void
-    {
-        $this->roleName = $roleName;
-    }
-
     public function isAdmin(): bool
     {
         return $this->roleName === 'admin';
-    }
-
-    public function isUser(): bool
-    {
-        return $this->roleName === 'user';
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'email' => $this->email,
-            'role_id' => $this->roleId,
-            'role_name' => $this->roleName,
-            'created_at' => $this->createdAt,
-        ];
     }
 }

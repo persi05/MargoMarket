@@ -54,38 +54,6 @@ class UserRepository extends Repository
         );
     }
 
-    public function getUserById(int $id): ?User
-    {
-        $query = "
-            SELECT 
-                u.id,
-                u.email,
-                u.password,
-                u.role_id,
-                r.name as role_name,
-                u.created_at
-            FROM users u
-            INNER JOIN roles r ON u.role_id = r.id
-            WHERE u.id = :id
-            LIMIT 1
-        ";
-
-        $result = $this->fetchOne($query, ['id' => $id]);
-
-        if (!$result) {
-            return null;
-        }
-
-        return new User(
-            $result['email'],
-            $result['password'],
-            (int) $result['role_id'],
-            $result['role_name'],
-            (int) $result['id'],
-            $result['created_at']
-        );
-    }
-
     public function createUser(string $email, string $password): ?int
     {
         if ($this->getUserByEmail($email) !== null) {
@@ -243,22 +211,6 @@ class UserRepository extends Repository
         $stmt = $this->connection->prepare($query);
         $stmt->execute();
         return $stmt->rowCount();
-    }
-
-    public function extendSession(string $token, int $expiresInSeconds = 3600): bool
-    {
-        $expiresAt = date('Y-m-d H:i:s', time() + $expiresInSeconds);
-        
-        $query = "
-            UPDATE user_sessions 
-            SET expires_at = :expires_at 
-            WHERE session_token = :token
-        ";
-
-        return $this->execute($query, [
-            'expires_at' => $expiresAt,
-            'token' => $token
-        ]);
     }
 
     public function countUsers(): int

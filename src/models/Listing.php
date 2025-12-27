@@ -85,12 +85,6 @@ class Listing
     public function getSoldAt(): ?string { return $this->soldAt; }
     public function getUserEmail(): ?string { return $this->userEmail; }
 
-    public function setId(int $id): void { $this->id = $id; }
-    public function setStatusId(int $statusId): void { $this->statusId = $statusId; }
-    public function setStatusName(string $statusName): void { $this->statusName = $statusName; }
-    public function setSoldAt(?string $soldAt): void { $this->soldAt = $soldAt; }
-
-
     public function isActive(): bool
     {
         return $this->statusName === 'active';

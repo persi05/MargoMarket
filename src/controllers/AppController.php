@@ -76,7 +76,8 @@ class AppController
         
         if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
             http_response_code(403);
-            die('Access denied');
+            include 'public/views/403.html'; 
+            exit();
         }
     }
 }
