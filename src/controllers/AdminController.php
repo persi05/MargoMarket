@@ -83,23 +83,23 @@ class AdminController extends AppController
         }
     }
 
-public function users(): void
-{
-    $this->requireAdmin();
+    public function users(): void
+    {
+        $this->requireAdmin();
 
-    $usersData = $this->userRepository->getAllUsers();
-    
-    $users = [];
-    foreach ($usersData as $user) {
-        $stats = $this->userRepository->getUserStats($user->getId());
-        $users[] = [
-            'user' => $user,
-            'stats' => $stats
-        ];
+        $usersData = $this->userRepository->getAllUsers();
+        
+        $users = [];
+        foreach ($usersData as $user) {
+            $stats = $this->userRepository->getUserStats($user->getId());
+            $users[] = [
+                'user' => $user,
+                'stats' => $stats
+            ];
+        }
+
+        $this->render('admin/users', [
+            'users' => $users
+        ]);
     }
-
-    $this->render('admin/users', [
-        'users' => $users
-    ]);
-}
 }

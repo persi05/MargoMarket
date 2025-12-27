@@ -11,7 +11,6 @@
 </head>
 <body>
     <div class="bg-overlay">
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE" alt="Background">
         <div class="bg-overlay-shade"></div>
     </div>
 
@@ -111,14 +110,6 @@
                     <?php foreach ($listings as $listing): ?>
                         <div class="listing-card" data-status="<?= $listing->isActive() ? 'active' : 'sold' ?>">
                             <div class="card-image">
-                                <?php if ($listing->getImageUrl()): ?>
-                                    <img src="<?= htmlspecialchars($listing->getImageUrl()) ?>" alt="<?= htmlspecialchars($listing->getItemName()) ?>">
-                                <?php else: ?>
-                                    <div class="card-image-placeholder">
-                                        <span class="material-symbols-outlined">inventory_2</span>
-                                    </div>
-                                <?php endif; ?>
-                                
                                 <?php if ($listing->isSold()): ?>
                                     <div class="card-badge badge-sold">
                                         <span class="material-symbols-outlined" style="font-size: 16px;">sell</span>
@@ -188,7 +179,7 @@
                                                 </button>
                                             </form>
                                         <?php endif; ?>
-                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

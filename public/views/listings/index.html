@@ -11,7 +11,6 @@
 </head>
 <body>
     <div class="bg-overlay">
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_mNGEl7O66qtZu2rXskFIw1LLLUfY-WScMfYFlUQxoxS77yxbHfbgnKVr4sa9jUUsBx9NS1nTDZM6Mm3HSTWqGGD6kMM9mqk1WjliRjcXY4UI7AZLubkOG1fkb0G3ud_ivTEnJx6qDklKf-i7zu3syuJTTsztObEeNByGnorm5-qSP-Wt5gCR0EXiGKJkkjJ_Pmmu4TiH5iSwRoOBhAPly8PD7y4JreygM2Hy9By9LFlOOpcOABne1CckwVF3_-2gKM5X-_j5gE" alt="Background">
         <div class="bg-overlay-shade"></div>
     </div>
 
@@ -186,7 +185,6 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th style="width: 80px;" class="text-center">Podgląd</th>
                                     <th>Nazwa przedmiotu</th>
                                     <th class="text-center" style="width: 100px;">Poziom</th>
                                     <th style="width: 150px;">Rzadkość</th>
@@ -198,7 +196,7 @@
                             <tbody>
                                 <?php if (empty($listings)): ?>
                                     <tr>
-                                        <td colspan="7">
+                                        <td colspan="6">
                                             <div class="empty-state">
                                                 <span class="material-symbols-outlined empty-icon">search_off</span>
                                                 <p class="empty-text">Nie znaleziono żadnych ogłoszeń spełniających kryteria.</p>
@@ -208,15 +206,6 @@
                                 <?php else: ?>
                                     <?php foreach ($listings as $listing): ?>
                                         <tr>
-                                            <td style="text-align: center;">
-                                                <?php if ($listing->getImageUrl()): ?>
-                                                    <div class="item-image" style="background-image: url('<?= htmlspecialchars($listing->getImageUrl()) ?>'); margin: 0 auto;"></div>
-                                                <?php else: ?>
-                                                    <div class="item-image" style="margin: 0 auto;">
-                                                        <span class="material-symbols-outlined" style="color: #64748b;">inventory_2</span>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </td>
                                             <td>
                                                 <span class="item-name"><?= htmlspecialchars($listing->getItemName()) ?></span>
                                             </td>
@@ -309,10 +298,6 @@
 
     <template id="listing-row-template">
         <tr>
-            <td style="text-align: center;">
-                <div class="item-image" style="margin: 0 auto;">
-                    </div>
-            </td>
             <td>
                 <span class="item-name"></span>
             </td>

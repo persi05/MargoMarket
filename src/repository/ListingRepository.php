@@ -104,7 +104,6 @@ class ListingRepository extends Repository
                 l.contact,
                 l.status_id,
                 ls.name as status,
-                l.image_url,
                 l.created_at,
                 l.sold_at,
                 u.email as user_email
@@ -132,8 +131,7 @@ class ListingRepository extends Repository
         int $price,
         int $currencyId,
         int $serverId,
-        string $contact,
-        ?string $imageUrl = null
+        string $contact
     ): ?int {
         $statusQuery = "SELECT id FROM listing_statuses WHERE name = 'active' LIMIT 1";
         $statusResult = $this->fetchOne($statusQuery);
@@ -142,10 +140,10 @@ class ListingRepository extends Repository
         $query = "
             INSERT INTO listings (
                 user_id, item_name, item_type_id, level, rarity_id,
-                price, currency_id, server_id, contact, status_id, image_url
+                price, currency_id, server_id, contact, status_id
             ) VALUES (
                 :user_id, :item_name, :item_type_id, :level, :rarity_id,
-                :price, :currency_id, :server_id, :contact, :status_id, :image_url
+                :price, :currency_id, :server_id, :contact, :status_id
             )
         ";
 
@@ -159,8 +157,7 @@ class ListingRepository extends Repository
             'currency_id' => $currencyId,
             'server_id' => $serverId,
             'contact' => $contact,
-            'status_id' => $statusId,
-            'image_url' => $imageUrl
+            'status_id' => $statusId
         ]);
 
         return $success ? $this->getLastInsertId() : null;
@@ -251,7 +248,6 @@ class ListingRepository extends Repository
             $data['currency'] ?? '',
             $data['server'] ?? '',
             $data['status'] ?? 'active',
-            $data['image_url'] ?? null,
             $data['created_at'] ?? null,
             $data['sold_at'] ?? null,
             $data['user_email'] ?? null
@@ -320,7 +316,6 @@ class ListingRepository extends Repository
                 l.contact,
                 l.status_id,
                 ls.name as status,
-                l.image_url,
                 l.created_at,
                 l.sold_at,
                 u.email as user_email
@@ -334,7 +329,7 @@ class ListingRepository extends Repository
             WHERE 1=1
                 AND (:search_term::VARCHAR IS NULL OR l.item_name ILIKE '%' || :search_term || '%')
                 AND (:server_id::INTEGER IS NULL OR l.server_id = :server_id)
-                AND (:status::VARCHAR IS NULL OR ls.name = :status) -- NOWY WARUNEK
+                AND (:status::VARCHAR IS NULL OR ls.name = :status)
             ORDER BY l.created_at DESC
             LIMIT :limit OFFSET :offset
         ";
@@ -355,11 +350,11 @@ class ListingRepository extends Repository
         $query = "
             SELECT COUNT(DISTINCT l.id) as count 
             FROM listings l
-            INNER JOIN listing_statuses ls ON l.status_id = ls.id -- JOIN POTRZEBNY DO FILTROWANIA PO STATUSIE
+            INNER JOIN listing_statuses ls ON l.status_id = ls.id
             WHERE 1=1
                 AND (:search_term::VARCHAR IS NULL OR l.item_name ILIKE '%' || :search_term || '%')
                 AND (:server_id::INTEGER IS NULL OR l.server_id = :server_id)
-                AND (:status::VARCHAR IS NULL OR ls.name = :status) -- NOWY WARUNEK
+                AND (:status::VARCHAR IS NULL OR ls.name = :status)
         ";
         
         $result = $this->fetchOne($query, [
@@ -379,7 +374,6 @@ class ListingRepository extends Repository
                 l.item_name,
                 l.price,
                 l.level,
-                l.image_url as image,
                 r.name as rarity_name,
                 s.name as server_name,
                 u.email

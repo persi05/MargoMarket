@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const emptyStateHtml = `
         <tr>
-            <td colspan="7">
+            <td colspan="6">
                 <div class="empty-state">
                     <span class="material-symbols-outlined empty-icon">search_off</span>
                     <p class="empty-text">Nie znaleziono ogłoszeń.</p>
@@ -63,15 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const clone = template.content.cloneNode(true);
 
-        const imgContainer = clone.querySelector('.item-image');
-        if (listing.image_url) {
-            imgContainer.style.backgroundImage = `url('${listing.image_url}')`;
-            imgContainer.innerHTML = '';
-        } else {
-            imgContainer.style.backgroundImage = 'none';
-            imgContainer.innerHTML = '<span class="material-symbols-outlined" style="color: #64748b;">inventory_2</span>';
-        }
-
         clone.querySelector('.item-name').textContent = listing.item_name;
         clone.querySelector('.item-level').textContent = listing.level;
         clone.querySelector('.item-rarity').textContent = listing.rarity; 
@@ -79,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let priceText = listing.price;
         if(listing.currency === 'pln') priceText += ' PLN';
         else if(listing.currency === 'w grze') priceText += ' złota';
-        else priceText += ' ' + listing.currency;
+        else priceText += ' ' + (listing.currency || '');
         
         clone.querySelector('.price-text').textContent = priceText;
         clone.querySelector('.item-email').textContent = listing.contact;

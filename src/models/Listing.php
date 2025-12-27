@@ -19,7 +19,6 @@ class Listing
     private string $contact;
     private int $statusId;
     private string $statusName;
-    private ?string $imageUrl;
     private ?string $createdAt;
     private ?string $soldAt;
     private ?string $userEmail;
@@ -41,7 +40,6 @@ class Listing
         string $currencyName = '',
         string $serverName = '',
         string $statusName = 'active',
-        ?string $imageUrl = null,
         ?string $createdAt = null,
         ?string $soldAt = null,
         ?string $userEmail = null
@@ -62,7 +60,6 @@ class Listing
         $this->contact = $contact;
         $this->statusId = $statusId;
         $this->statusName = $statusName;
-        $this->imageUrl = $imageUrl;
         $this->createdAt = $createdAt;
         $this->soldAt = $soldAt;
         $this->userEmail = $userEmail;
@@ -84,7 +81,6 @@ class Listing
     public function getContact(): string { return $this->contact; }
     public function getStatusId(): int { return $this->statusId; }
     public function getStatusName(): string { return $this->statusName; }
-    public function getImageUrl(): ?string { return $this->imageUrl; }
     public function getCreatedAt(): ?string { return $this->createdAt; }
     public function getSoldAt(): ?string { return $this->soldAt; }
     public function getUserEmail(): ?string { return $this->userEmail; }
@@ -128,7 +124,6 @@ class Listing
             'server' => $this->serverName,
             'contact' => $this->contact,
             'status' => $this->statusName,
-            'image_url' => $this->imageUrl,
             'created_at' => $this->createdAt,
             'sold_at' => $this->soldAt,
         ];

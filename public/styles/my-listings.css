@@ -42,13 +42,6 @@ body {
     pointer-events: none;
 }
 
-.bg-overlay img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.2;
-}
-
 .bg-overlay-shade {
     position: absolute;
     inset: 0;
@@ -385,35 +378,13 @@ body {
 }
 
 .card-image {
-    height: 200px;
+    height: 120px;
     background-color: var(--color-input-dark);
     position: relative;
     overflow: hidden;
-}
-
-.card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.7s;
-}
-
-.listing-card:hover .card-image img {
-    transform: scale(1.1);
-}
-
-.card-image-placeholder {
-    width: 100%;
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--color-input-dark);
-}
-
-.card-image-placeholder .material-symbols-outlined {
-    font-size: 60px;
-    color: #475569;
 }
 
 .card-badge {
