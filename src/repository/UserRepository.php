@@ -127,6 +127,38 @@ class UserRepository extends Repository
         return $users;
     }
 
+    public function getUserById(int $id): ?User
+    {
+        $query = "
+            SELECT 
+                u.id,
+                u.email,
+                u.password,
+                u.role_id,
+                r.name as role_name,
+                u.created_at
+            FROM users u
+            INNER JOIN roles r ON u.role_id = r.id
+            WHERE u.id = :id
+            LIMIT 1
+        ";
+
+        $result = $this->fetchOne($query, ['id' => $id]);
+
+        if (!$result) {
+            return null;
+        }
+
+        return new User(
+            $result['email'],
+            $result['password'],
+            (int) $result['role_id'],
+            $result['role_name'],
+            (int) $result['id'],
+            $result['created_at']
+        );
+    }
+
     public function createSession(int $userId, string $token, int $expiresInSeconds = 3600): bool
     {
         try {
@@ -249,5 +281,46 @@ class UserRepository extends Repository
             'active_listings' => (int) $result['active_listings'],
             'sold_listings' => (int) $result['sold_listings']
         ];
+    }
+
+    public function deleteUser(int $userId): bool
+    {
+        if (isset($_SESSION['user_id']) && $_SESSION['user_id'] === $userId) {
+            return false;
+        }
+
+        $query = "DELETE FROM users WHERE id = :user_id";
+        
+        try {
+            return $this->execute($query, ['user_id' => $userId]);
+        } catch (Exception $e) {
+            error_log("Failed to delete user {$userId}: ".$e->getMessage());
+            return false;
+        }
+    }
+
+    public function canDeleteUser(int $userId): bool
+    {
+        if (isset($_SESSION['user_id']) && $_SESSION['user_id'] === $userId) {
+            return false;
+        }
+
+        $user = $this->getUserById($userId);
+        if ($user && $user->isAdmin()) {
+            $query = "
+                SELECT COUNT(*) as count 
+                FROM users u
+                INNER JOIN roles r ON u.role_id = r.id
+                WHERE r.name = 'admin'
+            ";
+            $result = $this->fetchOne($query);
+            $adminCount = $result ? (int) $result['count'] : 0;
+            
+            if ($adminCount <= 1) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

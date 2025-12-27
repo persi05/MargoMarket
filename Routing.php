@@ -78,6 +78,10 @@ class Routing
         'admin-users' => [
             'controller' => 'AdminController',
             'action' => 'users'
+        ],
+        'admin-delete-user' => [
+            'controller' => 'AdminController',
+            'action' => 'deleteUser'
         ]
     ];
 

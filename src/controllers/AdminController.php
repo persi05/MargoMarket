@@ -102,4 +102,39 @@ class AdminController extends AppController
             'users' => $users
         ]);
     }
+
+    public function deleteUser(): void
+    {
+        $this->requireAdmin();
+
+        if (!$this->isPost()) {
+            $this->redirect('/admin-users');
+            return;
+        }
+
+        $userId = (int)($_POST['user_id'] ?? 0);
+
+        if ($userId <= 0) {
+            $this->redirect('/admin-users?error=invalid');
+            return;
+        }
+
+        if ($userId === $this->getCurrentUser()) {
+            $this->redirect('/admin-users?error=cannot_delete_self');
+            return;
+        }
+
+        if (!$this->userRepository->canDeleteUser($userId)) {
+            $this->redirect('/admin-users?error=cannot_delete_last_admin');
+            return;
+        }
+
+        $success = $this->userRepository->deleteUser($userId);
+
+        if ($success) {
+            $this->redirect('/admin-users?success=user_deleted');
+        } else {
+            $this->redirect('/admin-users?error=delete_failed');
+        }
+    }
 }
