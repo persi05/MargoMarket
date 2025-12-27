@@ -283,19 +283,49 @@ public function delete(): void
             $this->redirect('/my-listings?error=failed');
         }
     }
-    
+
     public function search(): void
-    {
-        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+{
+    $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
 
-        if ($contentType === "application/json") {
-            $content = trim(file_get_contents("php://input"));
-            $decoded = json_decode($content, true);
+    if ($contentType === "application/json") {
+        $content = trim(file_get_contents("php://input"));
+        $decoded = json_decode($content, true);
+        
+        $searchTerm = $decoded['search'] ?? '';
+        $page = isset($decoded['page']) ? (int)$decoded['page'] : 1;
+        $limit = 50;
+        $offset = ($page - 1) * $limit;
 
-            header('Content-Type: application/json');
-            http_response_code(200);
+        $listings = $this->listingRepository->searchListings(
+            $searchTerm,
+            null,
+            0,
+            300,
+            null,
+            null,
+            null,
+            $limit,
+            $offset
+        );
 
-            echo json_encode($this->listingRepository->getListingsByTitle($decoded['search']));
-        }
+        $totalListings = $this->listingRepository->countFilteredListings($searchTerm);
+        $totalPages = ceil($totalListings / $limit);
+        $listingsData = array_map(function($listing) {
+            return $listing->toArray();
+        }, $listings);
+
+        header('Content-Type: application/json');
+        http_response_code(200);
+
+        echo json_encode([
+            'listings' => $listingsData,
+            'pagination' => [
+                'currentPage' => $page,
+                'totalPages' => $totalPages
+            ]
+        ]);
+        exit();
     }
+}
 }

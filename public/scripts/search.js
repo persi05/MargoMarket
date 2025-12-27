@@ -1,64 +1,149 @@
-const searchInput = document.querySelector('input[name="search"]');
-const tableBody = document.querySelector('.table tbody');
-const emptyStateHtml = `
-    <tr>
-        <td colspan="7">
-            <div class="empty-state">
-                <span class="material-symbols-outlined empty-icon">search_off</span>
-                <p class="empty-text">Nie znaleziono ogłoszeń.</p>
-            </div>
-        </td>
-    </tr>
-`;
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="search"]');
+    const tableBody = document.querySelector('.table tbody');
+    const paginationContainer = document.querySelector('.pagination');
+    let currentSearchTerm = '';
 
-if (searchInput) {
-    searchInput.addEventListener('keyup', function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-        }
+    const emptyStateHtml = `
+        <tr>
+            <td colspan="7">
+                <div class="empty-state">
+                    <span class="material-symbols-outlined empty-icon">search_off</span>
+                    <p class="empty-text">Nie znaleziono ogłoszeń.</p>
+                </div>
+            </td>
+        </tr>
+    `;
 
-        const searchValue = this.value;
-
+    function fetchListings(searchTerm, page = 1) {
         fetch("/search", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ search: searchValue })
+            body: JSON.stringify({ 
+                search: searchTerm,
+                page: page 
+            })
         })
         .then(response => response.json())
-        .then(listings => {
+        .then(data => {
             tableBody.innerHTML = "";
+            const listings = data.listings;
+            const pagination = data.pagination;
 
             if (listings.length === 0) {
                 tableBody.innerHTML = emptyStateHtml;
-                document.querySelector('.content-count').innerText = 'Znaleziono: 0';
+                const countElem = document.querySelector('.content-count');
+                if(countElem) countElem.innerText = 'Znaleziono: 0';
             } else {
                 listings.forEach(listing => createListingRow(listing));
-                document.querySelector('.content-count').innerText = 'Znaleziono: ' + listings.length;
+                const countElem = document.querySelector('.content-count');
+                if(countElem) countElem.innerText = `Wyniki: ${listings.length}`;
             }
+
+            renderPagination(pagination.currentPage, pagination.totalPages, searchTerm);
         })
         .catch(error => console.error('Error:', error));
-    });
-}
-
-function createListingRow(listing) {
-    const template = document.querySelector("#listing-row-template");
-    const clone = template.content.cloneNode(true);
-
-    const imgContainer = clone.querySelector('.item-image');
-    if (listing.image) {
-        imgContainer.style.backgroundImage = `url('/public/uploads/${listing.image}')`;
-    } else {
-        imgContainer.innerHTML = '<span class="material-symbols-outlined" style="color: #64748b;">inventory_2</span>';
     }
 
-    clone.querySelector('.item-name').textContent = listing.item_name || listing.title;
-    clone.querySelector('.item-level').textContent = listing.level;
-    clone.querySelector('.item-rarity').textContent = listing.rarity_name || listing.rarity_id || 'Item'; 
-    clone.querySelector('.price-text').textContent = listing.price + ' ZŁ';
-    clone.querySelector('.item-email').textContent = listing.email || 'Kontakt';
-    clone.querySelector('.item-server').textContent = listing.server_name || listing.server_id || 'Serwer';
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+            }
+            currentSearchTerm = this.value;
+            fetchListings(currentSearchTerm, 1);
+        });
+    }
 
-    tableBody.appendChild(clone);
-}
+    function createListingRow(listing) {
+        const template = document.querySelector("#listing-row-template");
+        if (!template) return;
+        
+        const clone = template.content.cloneNode(true);
+
+        const imgContainer = clone.querySelector('.item-image');
+        if (listing.image_url) {
+            imgContainer.style.backgroundImage = `url('${listing.image_url}')`;
+            imgContainer.innerHTML = '';
+        } else {
+            imgContainer.style.backgroundImage = 'none';
+            imgContainer.innerHTML = '<span class="material-symbols-outlined" style="color: #64748b;">inventory_2</span>';
+        }
+
+        clone.querySelector('.item-name').textContent = listing.item_name;
+        clone.querySelector('.item-level').textContent = listing.level;
+        clone.querySelector('.item-rarity').textContent = listing.rarity; 
+        
+        let priceText = listing.price;
+        if(listing.currency === 'pln') priceText += ' PLN';
+        else if(listing.currency === 'w grze') priceText += ' złota';
+        else priceText += ' ' + listing.currency;
+        
+        clone.querySelector('.price-text').textContent = priceText;
+        clone.querySelector('.item-email').textContent = listing.contact;
+        clone.querySelector('.item-server').textContent = listing.server;
+
+        tableBody.appendChild(clone);
+    }
+
+    function renderPagination(currentPage, totalPages, searchTerm) {
+        if (!paginationContainer) return;
+        paginationContainer.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        let html = '';
+
+        if (currentPage > 1) {
+            html += createPaginationButton(currentPage - 1, 'chevron_left', false, searchTerm);
+        }
+
+        const start = Math.max(1, currentPage - 2);
+        const end = Math.min(totalPages, currentPage + 2);
+
+        if (start > 1) {
+            html += createPaginationButton(1, '1', currentPage === 1, searchTerm);
+            if (start > 2) html += '<span class="pagination-dots">...</span>';
+        }
+
+        for (let i = start; i <= end; i++) {
+            html += createPaginationButton(i, i, currentPage === i, searchTerm);
+        }
+
+        if (end < totalPages) {
+            if (end < totalPages - 1) html += '<span class="pagination-dots">...</span>';
+            html += createPaginationButton(totalPages, totalPages, currentPage === totalPages, searchTerm);
+        }
+
+        if (currentPage < totalPages) {
+            html += createPaginationButton(currentPage + 1, 'chevron_right', false, searchTerm);
+        }
+
+        paginationContainer.innerHTML = html;
+        attachPaginationEvents();
+    }
+
+    function createPaginationButton(page, content, isActive, searchTerm) {
+        const activeClass = isActive ? 'active' : '';
+        const isIcon = typeof content === 'string' && (content.includes('chevron'));
+        const contentHtml = isIcon ? `<span class="material-symbols-outlined">${content}</span>` : content;
+        
+        return `<a href="#" class="pagination-btn ${activeClass}" data-page="${page}">${contentHtml}</a>`;
+    }
+
+    function attachPaginationEvents() {
+        const buttons = paginationContainer.querySelectorAll('.pagination-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = parseInt(this.dataset.page);
+                fetchListings(currentSearchTerm, page);
+                
+                const contentArea = document.querySelector('.content-area');
+                if(contentArea) contentArea.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    }
+});
