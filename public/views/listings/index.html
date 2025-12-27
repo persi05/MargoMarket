@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="/public/styles/main.css">
 </head>
 
-
-
 <body>
     <div class="bg-overlay">
         <div class="bg-overlay-shade"></div>
@@ -321,11 +319,11 @@
         <tr>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <td style="text-align: center;">
-                    <button class="favorite-btn" title="Dodaj do ulubionych">
-                        <span class="material-symbols-outlined">star</span>
-                    </button>
-                </td>
+                    </td>
             <?php endif; ?>
+            <td>
+                <span class="item-name"></span>
+            </td>
             <td>
                 <span class="item-name"></span>
             </td>
