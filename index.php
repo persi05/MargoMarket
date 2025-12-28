@@ -35,4 +35,9 @@ if ($path === null || $path === false) {
     $path = '';
 }
 
-Routing::run($path);
+try {
+    Routing::run($path);
+} catch (Exception $e) {
+    http_response_code(500);
+    include 'public/views/500.html';
+}
