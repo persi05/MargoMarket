@@ -251,3 +251,96 @@
         min-width: 600px;
     }
 }
+
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+        padding: 20px;
+        background-color: transparent;
+    }
+
+    .content-area {
+        padding: 0;
+        overflow: visible;
+    }
+    .table-wrapper {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .table-scroll {
+        overflow-x: visible;
+    }
+
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table {
+        min-width: auto;
+    }
+
+    .table thead {
+        display: none;
+    }
+    .table tr {
+        background-color: var(--color-card-dark);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        margin-bottom: 20px;
+        padding: 15px;
+        position: relative;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: right;
+        min-height: auto;
+    }
+
+    .table td:last-child {
+        border-bottom: none;
+    }
+
+    .table td:nth-last-child(1)::before { content: "Serwer"; color: var(--color-text-muted); font-weight: 500; }
+    .table td:nth-last-child(2)::before { content: "Kontakt"; color: var(--color-text-muted); font-weight: 500; }
+    .table td:nth-last-child(3)::before { content: "Cena"; color: var(--color-text-muted); font-weight: 500; }
+    .table td:nth-last-child(4)::before { content: "Rzadkość"; color: var(--color-text-muted); font-weight: 500; }
+    .table td:nth-last-child(5)::before { content: "Poziom"; color: var(--color-text-muted); font-weight: 500; }
+    .table td:nth-last-child(6) {
+        display: block;
+        text-align: left;
+        font-size: 1.2rem;
+        font-weight: bold;
+        padding-top: 0;
+        padding-bottom: 12px;
+        margin-bottom: 5px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        padding-right: 40px;
+    }
+    
+    .table td:nth-last-child(7) {
+        position: absolute;
+        top: 15px;
+        right: 10px;
+        width: auto;
+        border: none;
+        padding: 0;
+        justify-content: flex-end;
+    }
+}
