@@ -119,11 +119,10 @@
                                         AKTYWNE
                                     </div>
                                 <?php endif; ?>
-                                
-                                <form method="POST" action="/favorite-remove" style="position: absolute; top: 12px; left: 12px;">
-                                    <input type="hidden" name="listing_id" value="<?= $listing->getId() ?>">
+                                <form action="/favorite-remove" method="POST" style="position: absolute; top: 12px; left: 12px;"">
+                                    <input type="hidden" name="listing_id" value="<?= $listing->getId(); ?>">
                                     <button type="submit" class="favorite-remove-btn" title="Usuń z ulubionych">
-                                        <span class="material-symbols-outlined">star</span>
+                                        <span class="material-symbols-outlined">delete</span>
                                     </button>
                                 </form>
                             </div>

@@ -203,6 +203,23 @@ class ListingController extends AppController
         }
     }
 
+    public function removeFromFavorites()
+    {
+        $this->requireAuth();
+        if (!$this->isPost()) {
+            $this->redirect('/favorites');
+            return;
+        }
+
+        $listingId = (int)($_POST['listing_id'] ?? 0);
+
+        if ($listingId > 0) {
+            $this->favoriteRepository->removeFavorite($this->getCurrentUser(), $listingId);
+        }
+
+        $this->redirect('/favorites');
+    }
+
     public function myListings(): void
     {
         $this->requireAuth();
