@@ -296,6 +296,11 @@ body {
     background-size: 20px;
     padding-right: 40px;
 }
+.form-select option {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    padding: 10px;
+}
 
 .alert {
     padding: 15px;

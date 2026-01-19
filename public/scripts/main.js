@@ -32,3 +32,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function filterListings(status) {
+    const buttons = document.querySelectorAll('.filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    const activeBtn = document.getElementById('filter-' + status);
+    if(activeBtn) {
+        activeBtn.classList.add('active');
+    }
+
+    const cards = document.querySelectorAll('.listing-card');
+    
+    cards.forEach(card => {
+        if (status === 'all') {
+            card.style.display = '';
+        } else {
+            if (card.dataset.status === status) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        }
+    });
+}
